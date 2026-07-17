@@ -1,5 +1,5 @@
 ; **********************************************************************;
-; Program Name: MASM Float Value Precision Manipulator
+; Program Name: MASM Float Value Precision Manipulator (EXTRA CREDIT)
 ; Program Description: This program allows for the precision of a user-inputted float value to be manipulated.
 ; Author: Terrence Micciche Hall
 ; Course: CSC2025X40
@@ -35,7 +35,7 @@ INCLUDELIB C:\Irvine\Irvine32.lib
     displayPrecision BYTE "Precision - ", 0 ; this is used to display th eusers precision 
     
     promptTryAgain BYTE "Would you like to try again? (y/n)? ", 0 ; this prompt the user to decide whether they'd like to continue the program or not.
-    promptErrorDecimal BYTE " You have entered an invalid decimal value. Please re-enter your decimal value.", 0 ; this declares that the user entered an invalid decimal, then it prompts
+    promptErrorDecimal BYTE "You have entered an invalid decimal value. Please re-enter your decimal value.", 0 ; this declares that the user entered an invalid decimal, then it prompts
                                                                                                                  ; the user to re-enter their value
     promptErrorPrecision BYTE "You have entered a precision value that is not 1, 2, 3, or 4. Please re-enter your precision value", 0 ; this declares that the user entered an invalid
                                                                                                                                       ; precision value, then it prompts the user to 
@@ -48,7 +48,7 @@ INCLUDELIB C:\Irvine\Irvine32.lib
     ; HOLDING USER INPUTTED DATA.
     ;*************************************
 
-    inputDecVal REAL8 ? ; this is a variable of the REAL8 data type used for storing float values from input
+    inputDecVal BYTE 64 DUP(0) 
     manipulatedDecVal REAL8 ? ; this is a variable of the REAL8 data type used for storing float values that have been manipulated
     floatToInt SDWORD ? ; this is a variable of the SDWORD data type used for storing values converted from float to integer
 
@@ -59,6 +59,9 @@ INCLUDELIB C:\Irvine\Irvine32.lib
     powerVal DWORD 10 ; this is a variable of the DWORD data type used to avoid the use of "magic numbers." the interger 10 is stored
                       ; in this variable
     scaleVal DWORD ? ; this is a variable of the DWORD data type used to hold a scaled value of 10
+
+    decimalPlace DWORD ? 
+    inputLength DWORD ?
 
     answer BYTE 2 DUP(0) ; this is an initialized array of DWORD elements. the elements are initialized to 0, and they are used to keep track
                          ; of the response to the TryAgain label as well as the null terminator.
@@ -88,7 +91,7 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 ; Requires: 
 ;***********************************
 PrecisionManipulator PROC
-    fld inputDecVal ; this pushes the float value in inputDecVal onto the stack at position ST(0)
+;    fld inputDecVal ; this pushes the float value in inputDecVal onto the stack at position ST(0)
 
     mov eax, defaultVal ; this sets eax equal to the value in defaultVal
     mov ebx, powerVal ; this sets ebx equal to the value in powerVal
@@ -131,25 +134,85 @@ MainProgram PROC
         mov eax, lightBlue + (black * 16) ; this sets the color of the text to light blue and the background to black
         call SetTextColor ; this sets the text color to the value in eax
 
-        call ReadFloat ; this allows for a float value to be read from input. this is saved on the stack at ST(0)
-                
-        fstp inputDecVal ; this stores the read float value from the stack in the variable inputDecVal then pops the stack
+        mov edx, OFFSET inputDecVal
+        mov ecx, SIZEOF inputDecVal
 
+        call ReadString
+
+        mov inputLength, eax
+        
+        CheckDecimal: ; NEED A CASE IF SOMEONE ENTERS ONLY .1234 AND NOT 0.1234
+            mov ecx, 0
+            mov esi, 0
+            
+            .WHILE ecx < LENGTHOF inputDecVal
+                cmp inputDecVal[esi], '.'
+                je DecimalFound
+
+                cmp inputDecVal[esi], 0
+                je DecimalError
+
+                inc ecx
+                inc esi
+            .ENDW
+
+            DecimalFound:
+                mov decimalPlace, esi
+                inc esi
+
+                mov eax, inputLength
+
+                sub eax, esi
+
+                mov ecx, 0
+
+                .WHILE ecx < eax
+                    cmp inputDecVal[esi], 0
+                    je EndOfString
+
+                    inc ecx
+                    inc esi
+                .ENDW
+
+            EndOfString:
+                cmp ecx, 5
+                jl DecimalError
+
+                call Crlf ; new line
+
+                jmp DisplayChosenDecimal
+
+
+            DecimalError:
+
+                call Crlf ; new line
+
+                mov eax, lightRed + (black * 16) ; this sets the color of the text to light red and the background to black
+                call SetTextColor ; this sets the text color to the value in eax
+
+                mov edx, OFFSET promptErrorDecimal ; this prepares the string promptErrorDecimal to be displayed
+                call WriteString ; this displays the string promptErrorDecimal
+
+                mov eax, lightGray + (black * 16) ; this sets the color of the text to light grey and the background to black
+                call SetTextColor ; this sets the text color to the value in eax
+
+                call Crlf ; new line
+                call Crlf ; new line
+
+                jmp EnterDecimal ; this jumps to the EnterDecimal label
+
+    DisplayChosenDecimal: ; this label displays the float value from the previous label
         mov eax, lightGray + (black * 16) ; this sets the color of the text to light grey and the background to black
         call SetTextColor ; this sets the text color to the value in eax
 
-        call Crlf ; new line
-
-    DisplayChosenDecimal: ; this label displays the float value from the previous label
         mov edx, OFFSET displayChosenDec ; this prepares the string displayChosenDec to be displayed
         call WriteString ; this displays the string displayChosenDec
 
         mov eax, lightBlue + (black * 16) ; this sets the color of the text to light blue and the background to black
         call SetTextColor ; this sets the text color to the value in eax
 
-        fld inputDecVal ; this loads the float value in inputDecValue onto the stack at ST(0)
-        call WriteFloat ; this displays the float value at the top of the stack at ST(0)
-        fstp st(0) ; this pops the top of the stack at ST(0) to avoid unexpected stack behavior
+        mov edx, OFFSET inputDecVal
+        call WriteString
 
         mov eax, lightGray + (black * 16) ; this sets the color of the text to light grey and the background to black
         call SetTextColor ; this sets the text color to the value in eax
@@ -207,9 +270,9 @@ MainProgram PROC
         mov eax, lightBlue + (black * 16) ; this sets the color of the text to light blue and the background to black
         call SetTextColor ; this sets the text color to the value in eax
 
-        fld inputDecVal ; this loads the float value in inputDecValue onto the stack at ST(0)
-        call WriteFloat ; this displays the float value at the top of the stack at ST(0)
-        fstp st(0) ; this pops the top of the stack at ST(0) to avoid unexpected stack behavior
+        ;fld inputDecVal ; this loads the float value in inputDecValue onto the stack at ST(0)
+        ;call WriteFloat ; this displays the float value at the top of the stack at ST(0)
+        ;fstp st(0) ; this pops the top of the stack at ST(0) to avoid unexpected stack behavior
 
         mov eax, lightGray + (black * 16) ; this sets the color of the text to light grey and the background to black
         call SetTextColor ; this sets the text color to the value in eax
@@ -246,6 +309,11 @@ MainProgram PROC
         jmp TryAgain ; jump to the TryAgain label
 
     ErrorInvalidPrecision: ; this label is ran when the user enters an invalid precision value
+        mov eax, lightGray + (black * 16) ; this sets the color of the text to light grey and the background to black
+        call SetTextColor ; this sets the text color to the value in eax
+
+        call Crlf ; new line
+
         mov eax, lightRed + (black * 16) ; this sets the color of the text to light red and the background to black
         call SetTextColor ; this sets the text color to the value in eax
 
