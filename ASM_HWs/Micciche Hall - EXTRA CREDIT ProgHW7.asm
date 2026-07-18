@@ -1,6 +1,6 @@
 ; **********************************************************************;
 ; Program Name: MASM Float Value Precision Manipulator (EXTRA CREDIT)
-; Program Description: This program allows for the precision of a user-inputted value with decimalsto be manipulated.
+; Program Description: This program allows for the precision of a user-inputted value with decimals to be manipulated.
 ; Author: Terrence Micciche Hall
 ; Course: CSC2025X40
 ; Creation Date: 07/17/26
