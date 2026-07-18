@@ -18,5 +18,8 @@
     <MASM Include="Micciche Hall - EXTRA CREDIT ProgHW7.asm">
       <Filter>Source Files</Filter>
     </MASM>
+    <MASM Include="Micciche Hall - ProgHW7.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
   </ItemGroup>
 </Project>
