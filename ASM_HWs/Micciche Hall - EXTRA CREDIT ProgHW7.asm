@@ -63,6 +63,8 @@ INCLUDELIB C:\Irvine\Irvine32.lib
     decimalPlace DWORD ? 
     inputLength DWORD ?
 
+    roundUpVal DWORD 0 ;
+
     answer BYTE 2 DUP(0) ; this is an initialized array of DWORD elements. the elements are initialized to 0, and they are used to keep track
                          ; of the response to the TryAgain label as well as the null terminator.
 
@@ -90,34 +92,71 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 ; Returns: 
 ; Requires: 
 ;***********************************
-PrecisionManipulator PROC
-;    fld inputDecVal ; this pushes the float value in inputDecVal onto the stack at position ST(0)
+PrecManip PROC
+    mov esi, decimalPlace
+    inc esi
 
-    mov eax, defaultVal ; this sets eax equal to the value in defaultVal
-    mov ebx, powerVal ; this sets ebx equal to the value in powerVal
-    mov edx, 0 ; this sets edx equal to 0
+    add esi, inputPrecVal
 
-    mov ecx, inputPrecVal ; this sets ecx equal to the value in inputPrecVal
+    mov eax, inputLength
+    
+    mov bl, '0'
 
-    .WHILE ecx > 0 ; whle ecx is greater than 0
-        mul ebx ; multiply eax by ebx (equivalent to 10^n)
-        dec ecx ; decrease ecx
+    inc esi
+
+    RoundingUp:
+        .IF esi >= 5
+            jmp RoundingUp2
+        .ELSE
+            jmp MoveArray
+        .ENDIF
+
+
+            ;movzx ecx, inputDecVal[esi]
+            ;sub ecx, bl
+
+            ;inc ecx
+
+            ;.IF ecx >= 10
+             ;   jmp RoundingUp2
+            ;.ELSE
+             ;   jmp MoveArray
+            ;.ENDIF
+        ;.ENDIF
+
+    RoundingUp2:
+        dec esi
+        movzx ecx, inputDecVal[esi]
+        sub ecx, bl
+
+        inc ecx
+
+        .IF ecx > 9
+            jmpRoundingUp2
+        .ELSE
+            jmp MoveArray
+        .ENDIF
+
+
+    MoveArray:
+
+
+
+
+    .WHILE esi < eax
+        mov inputDecVal[esi], bl
+        inc esi
     .ENDW
 
-    mov scaleVal, eax ; save the scaled value from the eax register in the scaleVal variable
+    mov esi, decimalPlace
+    inc esi
 
-    fimul scaleVal ; this allows for mulitplication between ST(0) and the integer scaleVal
+    add esi, inputPrecVal
 
-    fistp floatToInt ; this converts ST(0) into an integer and stores it in floatToInt
-
-    fild floatToInt ; this converts an integer and converts it to a floating-point value, storing it in ST(0)
-
-    fidiv scaleVal ; this divides the floating-point value in ST(0) by the integer scaleVal
-
-    fstp manipulatedDecVal ; this stores the flaoting-point value in ST(0) in memory
+   .IF esi 
 
     ret
-PrecisionManipulator ENDP
+PrecManip ENDP
 
 ;***********************************
 ; Description: 
@@ -137,7 +176,7 @@ MainProgram PROC
         mov edx, OFFSET inputDecVal
         mov ecx, SIZEOF inputDecVal
 
-        call ReadString
+        call ReadString 
 
         mov inputLength, eax
         
@@ -184,7 +223,6 @@ MainProgram PROC
 
 
             DecimalError:
-
                 call Crlf ; new line
 
                 mov eax, lightRed + (black * 16) ; this sets the color of the text to light red and the background to black
@@ -270,9 +308,8 @@ MainProgram PROC
         mov eax, lightBlue + (black * 16) ; this sets the color of the text to light blue and the background to black
         call SetTextColor ; this sets the text color to the value in eax
 
-        ;fld inputDecVal ; this loads the float value in inputDecValue onto the stack at ST(0)
-        ;call WriteFloat ; this displays the float value at the top of the stack at ST(0)
-        ;fstp st(0) ; this pops the top of the stack at ST(0) to avoid unexpected stack behavior
+        mov edx, OFFSET inputDecVal
+        call WriteString
 
         mov eax, lightGray + (black * 16) ; this sets the color of the text to light grey and the background to black
         call SetTextColor ; this sets the text color to the value in eax
@@ -292,14 +329,13 @@ MainProgram PROC
         mov al, ' ' ; this prepares the character ' ' to be displayed
         call WriteChar ; this displays the character ' '
 
-        call PrecisionManipulator ; this calls the procedure PrecisionManipulator
+        call PrecManip ; this calls the procedure PrecManip
 
         mov eax, lightBlue + (black * 16) ; this sets the color of the text to light blue and the background to black
         call SetTextColor ; this sets the text color to the value in eax
 
-        fld manipulatedDecVal ; this loads the float value in manipulatedDecVal onto the stack at ST(0)
-        call WriteFloat ; this displays the float value at the top of the stack at ST(0)
-        fstp st(0) ; this pops the top of the stack at ST(0) to avoid unexpected stack behavior
+        mov edx, OFFSET inputDecVal
+        call WriteString
 
         mov eax, lightGray + (black * 16) ; this sets the color of the text to light grey and the background to black
         call SetTextColor ; this sets the text color to the value in eax
