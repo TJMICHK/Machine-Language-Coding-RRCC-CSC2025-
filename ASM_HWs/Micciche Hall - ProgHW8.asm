@@ -222,7 +222,7 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 
 ;***********************************
 ; Description: This procedure handles the entire program.
-; Receives: This procedure does not directly recieve anything.
+; Receives: This procedure does not directly receive anything.
 ; Returns: This procedure does not directly return anything.
 ; Requires: This procedure requires the Irvine32 library as well as every single memory variable in the .data section.
 ;***********************************
@@ -269,7 +269,7 @@ MainProgram PROC
             .ENDIF ; end the if statements
 
     PlayGame: ; this label is used to run the hangman game
-        SeedRandom: ; this label is used to randomize the seez
+        SeedRandom: ; this label is used to randomize the seed
             call Randomize ; this seeds the random number generator with the current time
             mov eax, wordBankMax ; set eax with the value of the variable wordBankMax.
 
