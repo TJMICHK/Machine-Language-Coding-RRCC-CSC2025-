@@ -17,6 +17,13 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 
 .data
 
+; ADD ACE ALGORITHM TO ENSURE THAT EFFIENCT ACEUSAGE IS HAD
+; ADD MORE STATEMENTS FRO THE HOUSE TO MAKE THE GAME FEEL MORE ALIVE
+; ADD A BET SYSTEM TO THE GAME
+; CLEAR THE SCREEN?
+; MAKE TITLE SCREEN BETTER?? AND CENTERED WITH BOXES
+; ADD MAIN MENU AND INSTRUCTIONS FOR THE GAME
+
     ;*************************************
     ; THE DATA BELOW ARE OUTPUT STRINGS. THESE STRINGS ARE USED FOR PROMPTING
     ; THE USER.
@@ -61,8 +68,8 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 
     displayHearts BYTE "Hearts", 0
     displayDiamonds BYTE "Diamonds", 0
-    displayClubs BYTE "Clubs", 0
     displaySpades BYTE "Spades", 0
+    displayClubs BYTE "Clubs", 0
 
     promptStartGame1 BYTE "This here is ", 0 ; this prompt the user to decide whether they'd like to play the game or not.
     promtStartGame2 BYTE ", stranger. Lookin' to play? (y/n)? ", 0 ; this prompt the user to decide whether they'd like to play the game or not.
@@ -84,6 +91,19 @@ INCLUDELIB C:\Irvine\Irvine32.lib
     ; HOLDING USER INPUTTED DATA.
     ;*************************************
 
+    minimumCardBeforeShuffle DWORD 39 ; this is an initialized DWORD variable. this variable is used to hold the minimum number of cards in a deck before the deck needs to be shuffled.
+
+    maxDeckNumber DWORD 13 ; this is an initialized DWORD variable. this variable is used to hold the maximum number of cards in a deck.
+
+    chosenCard DWORD 0
+
+    cardDeck DWORD 52 DUP(0) ; this is an initialized array of DWORD elements. the elements are initialized to 0, and they are used to indicate which cards have
+                             ; been dealt.
+    ; let H = 0, D = 13, S = 26, C = 39
+    ; H = Hearts, D = Diamonds, S = Spades, C = Clubs
+    ; 
+    ;
+    
     delayValue DWORD 3000 ; this is an initialized DWORD variable. this variable is used to hold the value of the delay in milliseconds.
 
     startingHandCount DWORD 2 ; this is an initialized DWORD variable. this variable is used to hold the starting hand count of the user.
@@ -226,16 +246,16 @@ CheckShuffleCards PROC
         mov eax, 0
         mov ecx, 0
 
-        .WHILE ecx < LENGTHOF cardDeckSuitCounts ; while the value in ecx is less than the length of the cardDeckSuitCounts array
-            .IF cardDeckSuitCounts[ecx*4] == 0 ; if the value of the cardDeckSuitCounts array at the index in ecx is equal to 0
+        .WHILE ecx < LENGTHOF cardDeck ; while the value in ecx is less than the length of the cardDeck array
+            .IF cardDeck[ecx*4] >= 1 ; if the value of the cardDeck array at the index in ecx is equal to 0
                 inc eax
             .ENDIF
 
+            cmp eax, minimumCardBeforeShuffle ; this compares the value in eax to 13
+            jge ShuffleCards ; if the value in eax is greater than or equal to 3, then jump to the ShuffleCards label
+
             inc ecx ; this increases the value in ecx by 1
         .ENDW
-
-        cmp eax, 3
-        jge ShuffleCards ; if the value in eax is greater than or equal to 3, then jump to the ShuffleCards label
 
         ret
 
@@ -249,21 +269,17 @@ CheckShuffleCards PROC
         mov edx, OFFSET displayShuffleCards ; prepares the string displayShuffleCards to be displayed
         call WriteString ; this displays a string from edx
 
+        call Crlf
+
         mov eax, delayValue ; this moves the value of delayValue into eax
         call Delay ; this delays the program for the amount of time in milliseconds specified in eax
 
         Call Crlf
 
-        .WHILE ecx < LENGTHOF cardDeckSuitCounts ; while the value in ecx is less than the length of the cardDeckSuitCounts array
-
-            mov cardDeckSuitCounts[ecx*4], 13 ; this sets the value of the cardDeckSuitCounts array at the index in ecx to 13
-            inc ecx ; this increases the value in ecx by 1
-        .ENDW
-
         mov ecx, 0
 
-        .WHILE ecx < LENGTHOF cardDeckNumbersCounts ; while the value in ecx is less than the length of the cardDeckNumbersCounts array
-            mov cardDeckNumbersCounts[ecx*4], 4 ; this sets the value of the cardDeckNumbersCounts array at the index in ecx to 4
+        .WHILE ecx < LENGTHOF cardDeck ; while the value in ecx is less than the length of the cardDeck array
+            mov cardDeck[ecx*4], 0 ; this sets the value of the cardDeck array at the index in ecx to 0
             inc ecx ; this increases the value in ecx by 1
         .ENDW
 
@@ -388,35 +404,42 @@ MainProgram PROC
 
         DealUser:
 
-            ; ONLY DO THIS IF YOU DO ONE CARD DECK  call CheckShuffleCards ; this calls the CheckShuffleCards procedure to check if the cards need to be shuffled
+            call CheckShuffleCards ; this calls the CheckShuffleCards procedure to check if the cards need to be shuffled
 
             mov ecx, 0
 
             .WHILE ecx < startingHandCount
-                DetermineNumber:
-                    call SeedCard ; this calls the SeedCard procedure to generate a random number between 0 and the length of the cardDeckNumbers array and saves it in eax
-
-             ; ONLY DO THIS IF YOU DO ONE CARD DECK         .IF cardDeckNumbersCounts[eax*4] == 0 ; if the count of the cardDeckNumbersCounts array at the index in eax is 0
-            ; ONLY DO THIS IF YOU DO ONE CARD DECK              jmp DetermineNumber ; jump to the DetermineNumber label
-            ; ONLY DO THIS IF YOU DO ONE CARD DECK          .ENDIF
-
-              ; ONLY DO THIS IF YOU DO ONE CARD DECK        dec cardDeckNumbersCounts[eax*4] ; this decreases the count of the cardDeckNumbersCounts array at the index in eax by 1
-
-                    mov edx, cardDeckNumbers[eax*4]
-                    mov userHand[ecx*4], edx ; this saves the value at the index in eax into the first element of the userHand array
 
                 DetermineSuit:
                     call SeedSuit ; this calls the SeedSuit procedure to generate a random number between 0 and the length of the cardDeckSuits array and saves it in eax
 
-                ; ONLY DO THIS IF YOU DO ONE CARD DECK      .IF cardDeckSuitCounts[eax*4] == 0 ; if the count of the cardDeckSuitCounts array at the index in eax is 0
-                ; ONLY DO THIS IF YOU DO ONE CARD DECK          jmp DetermineSuit ; jump to the DetermineSuit label
-                ; ONLY DO THIS IF YOU DO ONE CARD DECK      .ENDIF
-
-                ; ONLY DO THIS IF YOU DO ONE CARD DECK      dec cardDeckSuitCounts[eax*4] ; this decreases the count of the cardDeckSuitCounts array at the index in eax by 1
-
                     mov edx, cardDeckSuits[eax*4]
                     mov userHandSuit[ecx*4], edx
 
+                    mov ebx, 13
+                    mul ebx
+
+                    mov chosenCard, eax ; this saves the value in eax into chosenCard
+
+
+                DetermineNumber:
+                    call SeedCard ; this calls the SeedCard procedure to generate a random number between 0 and the length of the cardDeckNumbers array and saves it in eax
+
+                    mov edx, cardDeckNumbers[eax*4]
+                    mov userHand[ecx*4], edx ; this saves the value at the index in eax into the first element of the userHand array
+
+                    add chosenCard, eax ; this adds the value in eax to the value in chosenCard
+                
+                ProcessCard:
+                    mov eax, chosenCard ; this moves the value in chosenCard into eax
+                    mov ebx, maxDeckNumber ; this moves the value in maxDeckNumber into ebx
+
+                    .IF cardDeck[eax*4] == ebx ; if the value of the cardDeck array at the index in eax is equal to ebx
+                        jmp DetermineSuit ; jump to the DetermineSuit label
+                    .ENDIF
+
+                    inc cardDeck[eax*4] ; this increases the value of the cardDeck array at the index in eax by 1
+                
                 inc ecx
             .ENDW
 
@@ -523,7 +546,10 @@ MainProgram PROC
                     jmp EndGame
                 .ELSEIF eax == twentyOne
                     mov boolUser21, 1
-                    ; LET THEUSER KNOW THEY GOT 21
+
+                    mov eax, delayValue ; this moves the value of delayValue into eax
+                    call Delay ; this delays the program for the amount of time in milliseconds specified in eax
+
                     jmp DealHouse
                 .ENDIF
 
@@ -579,29 +605,35 @@ MainProgram PROC
 
                 mov ecx, userTotalCards ; this moves the value of userTotalCards into ecx
 
+                DetermineSuit2:
+                    call SeedSuit ; this calls the SeedSuit procedure to generate a random number between 0 and the length of the cardDeckSuits array and saves it in eax
+
+                    mov edx, cardDeckSuits[eax*4]
+                    mov userHandSuit[ecx*4], edx
+
+                    mov ebx, 13
+                    mul ebx
+
+                    mov chosenCard, eax ; this saves the value in eax into chosenCard
+
+
                 DetermineNumber2:
                     call SeedCard ; this calls the SeedCard procedure to generate a random number between 0 and the length of the cardDeckNumbers array and saves it in eax
-
-                ; ONLY DO THIS IF YOU DO ONE CARD DECK      .IF cardDeckNumbersCounts[eax*4] == 0 ; if the count of the cardDeckNumbersCounts array at the index in eax is 0
-                ; ONLY DO THIS IF YOU DO ONE CARD DECK          jmp DetermineNumber ; jump to the DetermineNumber label
-                ; ONLY DO THIS IF YOU DO ONE CARD DECK      .ENDIF
-
-                 ; ONLY DO THIS IF YOU DO ONE CARD DECK     dec cardDeckNumbersCounts[eax*4] ; this decreases the count of the cardDeckNumbersCounts array at the index in eax by 1
 
                     mov edx, cardDeckNumbers[eax*4]
                     mov userHand[ecx*4], edx ; this saves the value at the index in eax into the first element of the userHand array
 
-                DetermineSuit2:
-                    call SeedSuit ; this calls the SeedSuit procedure to generate a random number between 0 and the length of the cardDeckSuits array and saves it in eax
+                    add chosenCard, eax ; this adds the value in eax to the value in chosenCard
+                
+                ProcessCard2:
+                    mov eax, chosenCard ; this moves the value in chosenCard into eax
+                    mov ebx, maxDeckNumber ; this moves the value in maxDeckNumber into ebx
 
-             ; ONLY DO THIS IF YOU DO ONE CARD DECK         .IF cardDeckSuitCounts[eax*4] == 0 ; if the count of the cardDeckSuitCounts array at the index in eax is 0
-             ; ONLY DO THIS IF YOU DO ONE CARD DECK             jmp DetermineSuit ; jump to the DetermineSuit label
-            ; ONLY DO THIS IF YOU DO ONE CARD DECK          .ENDIF
+                    .IF cardDeck[eax*4] == ebx ; if the value of the cardDeck array at the index in eax is equal to ebx
+                        jmp DetermineSuit2 ; jump to the DetermineSuit label
+                    .ENDIF
 
-           ; ONLY DO THIS IF YOU DO ONE CARD DECK           dec cardDeckSuitCounts[eax*4] ; this decreases the count of the cardDeckSuitCounts array at the index in eax by 1
-
-                    mov edx, cardDeckSuits[eax*4]
-                    mov userHandSuit[ecx*4], edx
+                    inc cardDeck[eax*4] ; this increases the value of the cardDeck array at the index in eax by 1
 
                 inc ecx ; this increases the value in ecx by 1
 
@@ -611,37 +643,43 @@ MainProgram PROC
 
             StandUser:
                 jmp DealHouse ; jump to the DealHouse label
-
+        
         DealHouse:
             
-          ; ONLY DO THIS IF YOU DO ONE CARD DECK  call CheckShuffleCards ; this calls the CheckShuffleCards procedure to check if the cards need to be shuffled
+            call CheckShuffleCards ; this calls the CheckShuffleCards procedure to check if the cards need to be shuffled
 
             mov ecx, 0
 
             .WHILE ecx < startingHandCount
-                DetermineNumber3:
-                    call SeedCard ; this calls the SeedCard procedure to generate a random number between 0 and the length of the cardDeckNumbers array and saves it in eax
-
-                  ; ONLY DO THIS IF YOU DO ONE CARD DECK    .IF cardDeckNumbersCounts[eax*4] == 0 ; if the count of the cardDeckNumbersCounts array at the index in eax is 0
-                  ; ONLY DO THIS IF YOU DO ONE CARD DECK        jmp DetermineNumber ; jump to the DetermineNumber label
-                ; ONLY DO THIS IF YOU DO ONE CARD DECK      .ENDIF
-
-               ; ONLY DO THIS IF YOU DO ONE CARD DECK       dec cardDeckNumbersCounts[eax*4] ; this decreases the count of the cardDeckNumbersCounts array at the index in eax by 1
-
-                    mov edx, cardDeckNumbers[eax*4]
-                    mov houseHand[ecx*4], edx ; this saves the value at the index in eax into the first element of the userHand array
 
                 DetermineSuit3:
                     call SeedSuit ; this calls the SeedSuit procedure to generate a random number between 0 and the length of the cardDeckSuits array and saves it in eax
 
-           ; ONLY DO THIS IF YOU DO ONE CARD DECK           .IF cardDeckSuitCounts[eax*4] == 0 ; if the count of the cardDeckSuitCounts array at the index in eax is 0
-              ; ONLY DO THIS IF YOU DO ONE CARD DECK            jmp DetermineSuit ; jump to the DetermineSuit label
-              ; ONLY DO THIS IF YOU DO ONE CARD DECK        .ENDIF
-
-               ; ONLY DO THIS IF YOU DO ONE CARD DECK       dec cardDeckSuitCounts[eax*4] ; this decreases the count of the cardDeckSuitCounts array at the index in eax by 1
-
                     mov edx, cardDeckSuits[eax*4]
                     mov houseHandSuit[ecx*4], edx
+
+                    mov ebx, 13
+                    mul ebx
+
+                    mov chosenCard, eax ; this saves the value in eax into chosenCard
+
+                DetermineNumber3:
+                    call SeedCard ; this calls the SeedCard procedure to generate a random number between 0 and the length of the cardDeckNumbers array and saves it in eax
+
+                    mov edx, cardDeckNumbers[eax*4]
+                    mov houseHand[ecx*4], edx ; this saves the value at the index in eax into the first element of the houseHand array
+
+                    add chosenCard, eax ; this adds the value in eax to the value in chosenCard
+
+                ProcessCard3:
+                    mov eax, chosenCard ; this moves the value in chosenCard into eax
+                    mov ebx, maxDeckNumber ; this moves the value in maxDeckNumber into ebx
+
+                    .IF cardDeck[eax*4] == ebx ; if the value of the cardDeck array at the index in eax is equal to ebx
+                        jmp DetermineSuit3 ; jump to the DetermineSuit label
+                    .ENDIF
+
+                    inc cardDeck[eax*4] ; this increases the value of the cardDeck array at the index in eax by 1
 
                 inc ecx
             .ENDW
@@ -760,31 +798,39 @@ MainProgram PROC
                     .ELSEIF eax >= 17
                         jmp EndGame
                     .ELSE
+
+                        call CheckShuffleCards
+
                         mov ecx, houseTotalCards ; this moves the value of houseTotalCards into ecx
-
-                        DetermineNumber4:
-                            call SeedCard ; this calls the SeedCard procedure to generate a random number between 0 and the length of the cardDeckNumbers array and saves it in eax
-
-                     ; ONLY DO THIS IF YOU DO ONE CARD DECK         .IF cardDeckNumbersCounts[eax*4] == 0 ; if the count of the cardDeckNumbersCounts array at the index in eax is 0
-                    ; ONLY DO THIS IF YOU DO ONE CARD DECK              jmp DetermineNumber ; jump to the DetermineNumber label
-                     ; ONLY DO THIS IF YOU DO ONE CARD DECK         .ENDIF
-
-                      ; ONLY DO THIS IF YOU DO ONE CARD DECK        dec cardDeckNumbersCounts[eax*4] ; this decreases the count of the cardDeckNumbersCounts array at the index in eax by 1
-
-                            mov edx, cardDeckNumbers[eax*4]
-                            mov houseHand[ecx*4], edx ; this saves the value at the index in eax into the first element of the userHand array
 
                         DetermineSuit4:
                             call SeedSuit ; this calls the SeedSuit procedure to generate a random number between 0 and the length of the cardDeckSuits array and saves it in eax
 
-                   ; ONLY DO THIS IF YOU DO ONE CARD DECK           .IF cardDeckSuitCounts[eax*4] == 0 ; if the count of the cardDeckSuitCounts array at the index in eax is 0
-               ; ONLY DO THIS IF YOU DO ONE CARD DECK                   jmp DetermineSuit ; jump to the DetermineSuit label
-                      ; ONLY DO THIS IF YOU DO ONE CARD DECK        .ENDIF
-
-                     ; ONLY DO THIS IF YOU DO ONE CARD DECK         dec cardDeckSuitCounts[eax*4] ; this decreases the count of the cardDeckSuitCounts array at the index in eax by 1
-
                             mov edx, cardDeckSuits[eax*4]
                             mov houseHandSuit[ecx*4], edx
+
+                            mov ebx, 13
+                            mul ebx
+
+                            mov chosenCard, eax ; this saves the value in eax into chosenCard
+
+                        DetermineNumber4:
+                            call SeedCard ; this calls the SeedCard procedure to generate a random number between 0 and the length of the cardDeckNumbers array and saves it in eax
+
+                            mov edx, cardDeckNumbers[eax*4]
+                            mov houseHand[ecx*4], edx ; this saves the value at the index in eax into the first element of the houseHand array
+
+                            add chosenCard, eax ; this adds the value in eax to the value in chosenCard
+
+                        ProcessCard4:
+                            mov eax, chosenCard ; this moves the value in chosenCard into eax
+                            mov ebx, maxDeckNumber ; this moves the value in maxDeckNumber into ebx
+
+                            .IF cardDeck[eax*4] == ebx ; if the value of the cardDeck array at the index in eax is equal to ebx
+                                jmp DetermineSuit4 ; jump to the DetermineSuit4 label
+                            .ENDIF
+
+                            inc cardDeck[eax*4] ; this increases the value of the cardDeck array at the index in eax by 1
 
                         inc ecx
 
