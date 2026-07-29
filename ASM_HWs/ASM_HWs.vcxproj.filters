@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="Micciche Hall - ProgHW8.asm">
+    <MASM Include="Micciche Hall - FINAL.asm">
       <Filter>Source Files</Filter>
     </MASM>
   </ItemGroup>
