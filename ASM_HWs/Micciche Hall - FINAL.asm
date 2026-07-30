@@ -1,15 +1,22 @@
 ; **********************************************************************;
 ; Program Name: BlackJack Game
 ; Program Description: 
-; Author: Terrence Micciche Hall
+; Author: Terrence Micciche-Hall
 ; Course: CSC2025X40
 ; Creation Date: 07/28/26
 ; Revisions: 0
-; Date Last Modified: 07/28/26
+; Date Last Modified: 07/30/26
 ; Test Cases:
-;
+;   ShuffleCards Case Ran - PASSED
+;   Ace Algorithm - PASSED?
 ; Notable Bugs:
-;   NO KNOWN NOTABLE BUGS
+;   While conducting testing, I found that every once in a while the Ace Algorithm would fail.
+;   However, in most cases it seems to work. I am not entirely sure why this is happening.
+;
+;   Regarding the betting system, there is no system to ensure that the user does not obtain
+;   more money than the limit of an unsigned DWORD (4,294,967,295). This system will not be
+;   implemented in the current iteration of the program. This is due to the unlikely nature
+;   of this case.
 ;***********************************************************************;
 
 INCLUDE C:\Irvine\Irvine32.inc
@@ -17,62 +24,76 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 
 .data
 
-; ADD ACE ALGORITHM TO ENSURE THAT EFFIENCT ACEUSAGE IS HAD
-; ADD MORE STATEMENTS FRO THE HOUSE TO MAKE THE GAME FEEL MORE ALIVE
-; ADD A BET SYSTEM TO THE GAME
-; CLEAR THE SCREEN?
-; MAKE TITLE SCREEN BETTER?? AND CENTERED WITH BOXES
-; ADD MAIN MENU AND INSTRUCTIONS FOR THE GAME
-
     ;*************************************
     ; THE DATA BELOW ARE OUTPUT STRINGS. THESE STRINGS ARE USED FOR PROMPTING
     ; THE USER.
     ;*************************************
 
-    displayShuffleCards BYTE "Gimme a sec', I gotta shuffle the cards.", 0
-    displayGoodbye BYTE "Come back anytime, stranger.", 0
+    displayNotEnoughMoney BYTE "Looks like ya' don't have enough money to bet. Come back when ya' got some more.", 0 ; this displays a message to the user that they don't have enough money to bet.
+    
+    promptRebet BYTE "I get the feeling that ya' tryin' to cheat me here... I'll give ya' another chance to bet a valid amount.", 0 ; this prompt the user to enter a valid amount of money they'd like to bet.
 
-    displayUserWon BYTE "Well now, it looks like ya' won! Good for ya'!", 0
-    displayHouseWon BYTE "Tough luck, ya' lost. Maybe the next hand will be ya' lucky one.", 0
+    promptBet BYTE "How much ya' wanna bet? The minimum bet is $25: ", 0 ; this prompt the user to enter the amount of money they'd like to bet.
 
-    displayTie21 BYTE "We both got 21! How about that?", 0
-    displayTie BYTE "Looks like we tied. How about that?", 0
+    displayLuckyNumber BYTE "That's my lucky number...", 0 ; this displays a message that their bet is confirmed.
 
-    displayHouseBust BYTE "Yup, the house busted. Good for ya'!", 0
-    displayHouse21 BYTE "Tough luck, stranger. The house has 21. Ya' lost.", 0
+    displayWallet BYTE "Wallet [$]: ", 0 ; this displays the amount of money the user has in their wallet.
 
-    displayTotalValueHouse BYTE "Seems like the house total is ", 0    
+    displayShuffleCards BYTE "Gimme a sec', I gotta shuffle the cards.", 0 ; this displays a message to the user that the cards are being shuffled.
+    displayGoodbye BYTE "Come back anytime, stranger.", 0 ; this displays a farewell message
 
-    displayTotalValueUser BYTE "Looks like ya' total is ", 0
+    displayUserWon BYTE "Well now, it looks like ya' won! Good for ya'!", 0 ; this displays a message to the user that they have won the game.
+    displayHouseWon BYTE "Tough luck, ya' lost. Maybe the next hand will be ya' lucky one.", 0 ; this displays a message to the user that they have lost the game.
 
-    promptHitOrStand BYTE "Whatcha thinkin? Hit or Stand? (h/s)? ", 0
+    displayTie21 BYTE "We both got 21! How about that?", 0 ; this displays a message to the user that both the user and th ehosue got a 21.
+    displayTie BYTE "Looks like we tied. How about that?", 0 ; this displays a message to the user that they have tied the game.
 
-    displayCardsHouse BYTE "The house cards are: ", 0
-    displayCardsUser BYTE "Ya' cards are: ", 0
-    displayOf BYTE " of ", 0
-    displayAnd BYTE " and ", 0
+    displayHouseBust BYTE "Yup, the house busted. Good for ya'!", 0 ; this displays a message to the user that the house has busted.
+    displayHouse21 BYTE "Tough luck, stranger. The house has 21. Ya' lost.", 0 ; this displays a message to the user that the house has 21 and the user has lost.
 
-    displayAce BYTE "Ace", 0
-    displayTwo BYTE "Two", 0
-    displayThree BYTE "Three", 0
-    displayFour BYTE "Four", 0
-    displayFive BYTE "Five", 0
-    displaySix BYTE "Six", 0
-    displaySeven BYTE "Seven", 0
-    displayEight BYTE "Eight", 0
-    displayNine BYTE "Nine", 0
-    displayTen BYTE "Ten", 0
-    displayJack BYTE "Jack", 0
-    displayQueen BYTE "Queen", 0
-    displayKing BYTE "King", 0
+    displayTotalValueHouse BYTE "Seems like the house total is ", 0 ; this displays a message to the user that shows the total value of the house's hand of cards.
 
-    displayHearts BYTE "Hearts", 0
-    displayDiamonds BYTE "Diamonds", 0
-    displaySpades BYTE "Spades", 0
-    displayClubs BYTE "Clubs", 0
+    displayTotalValueUser BYTE "Looks like ya' total is ", 0 ; this displays a message to the user that shows the total value of the user's hand of cards.
+
+    promptHitOrStand BYTE "Whatcha thinkin? Hit or Stand? (h/s)? ", 0 ; this prompt the user to decide whether they'd like to hit or stand.
+
+    displayCardsHouse BYTE "The house cards are: ", 0 ; this displays a message to the user that shows the house's hand of cards.
+    displayCardsUser BYTE "Ya' cards are: ", 0 ; this displays a message to the user that shows the user's hand of cards.
+    displayOf BYTE " of ", 0 ; this display is a part of a message which shows the number and suit of a card
+    displayAnd BYTE " and ", 0 ; this display is a part of a message which shows the number and suit of a card
+
+    displayAce BYTE "Ace", 0 ; this displays the word "Ace"
+    displayTwo BYTE "Two", 0 ; this displays the word "Two"
+    displayThree BYTE "Three", 0 ; this displays the word "Three"
+    displayFour BYTE "Four", 0 ; this displays the word "Four"
+    displayFive BYTE "Five", 0 ; this displays the word "Five"
+    displaySix BYTE "Six", 0 ; this displays the word "Six"
+    displaySeven BYTE "Seven", 0 ; this displays the word "Seven"
+    displayEight BYTE "Eight", 0 ; this displays the word "Eight"
+    displayNine BYTE "Nine", 0 ; this displays the word "Nine"
+    displayTen BYTE "Ten", 0 ; this displays the word "Ten"
+    displayJack BYTE "Jack", 0 ; this displays the word "Jack"
+    displayQueen BYTE "Queen", 0 ; this displays the word "Queen"
+    displayKing BYTE "King", 0 ; this displays the word "King"
+    
+    displayHearts BYTE "Hearts", 0 ; this displays the word "Hearts"
+    displayDiamonds BYTE "Diamonds", 0 ; this displays the word "Diamonds"
+    displaySpades BYTE "Spades", 0 ; this displays the word "Spades"
+    displayClubs BYTE "Clubs", 0 ; this displays the word "Clubs"
 
     promptStartGame1 BYTE "This here is ", 0 ; this prompt the user to decide whether they'd like to play the game or not.
     promtStartGame2 BYTE ", stranger. Lookin' to play? (y/n)? ", 0 ; this prompt the user to decide whether they'd like to play the game or not.
+    promptStartGame3 BYTE "Well, stranger, I don't know what to say. Goodbye.", 0 ; this displays a message to the user that they have chosen not to play the game.
+    promptStartGame4 BYTE "Great. Want me to tell ya' the rules, or na'? (y/n)? ", 0 ; this prompt the user to decide whether they'd like to hear the rules of the game or not.
+    promptStartGame5 BYTE "Let's get on then.", 0 ; this displays a message to the user that they have chosen not to hear the rules of the game.
+
+    displayRules BYTE "Ya' goal is to have a hand that is closer to 21 than the house's hand without goin' over.", 0 ; this a part of a set of strings that display the rules of the game to the user.
+    displayRules2 BYTE "If ya' go over 21, ya bust. If ya' get 21, then ya' win. Simple enough?", 0 ; this a part of a set of strings that display the rules of the game to the user.
+    displayRules3 BYTE "Oh, and if ya' get a hand that is equal to the houses hand, then ya' tie.", 0 ; this a part of a set of strings that display the rules of the game to the user.
+    displayRules4 BYTE "Let's say ya' win. If ya' get a natural BlackJack, which is an Ace and a 10, then ya' bet comes back double.", 0 ; this a part of a set of strings that display the rules of the game to the user.
+    displayRules5 BYTE "Otherwise, ya' bet comes back as the same amount ya' bet.", 0 ; this a part of a set of strings that display the rules of the game to the user.
+    displayRules6 BYTE "If ya' bust, then ya' not gettin' anythin' back. If ya' tie, then ya' gain nothin' and lose nothin'.", 0 ; this a part of a set of strings that display the rules of the game to the user.
+    displayRules7 BYTE "Good luck, stranger.", 0 ; this displays the rules of the game to the user.", 0 ; this is a part of a set of strings that display the rules of the game to the user.
 
     displayBlack BYTE "Black", 0 ; this displays the word "Black"
     diplayJack BYTE "Jack", 0 ; this displays the word "Jack"
@@ -91,20 +112,29 @@ INCLUDELIB C:\Irvine\Irvine32.lib
     ; HOLDING USER INPUTTED DATA.
     ;*************************************
 
+    blackJackMultiplier DWORD 2 ; this is an initialized DWORD variable. this variable is used to hold the multiplier for a blackjack hand.
+    winningMult DWORD 1 ; this is an initialized DWORD variable. this variable is used to hold the multiplier for a winning hand of blackjack.
+
+    userWallet DWORD 250 ; this is an uninitialized DWORD variable. this variable is used to hold the amount of money the user has in their wallet.
+
+    minBet DWORD 25 ; this is an uninitialized DWORD variable. this variable is used to hold the minimum bet amount.
+
+    userBet DWORD 0 ; this is an uninitialized DWORD variable. this variable is used to hold the amount of money the user has bet.
+
+    aceCount DWORD 0 ; this is an initialized DWORD variable. this variable is used to hold the number of aces in a hand for the ace algorithm.
+
     minimumCardBeforeShuffle DWORD 39 ; this is an initialized DWORD variable. this variable is used to hold the minimum number of cards in a deck before the deck needs to be shuffled.
 
-    maxDeckNumber DWORD 13 ; this is an initialized DWORD variable. this variable is used to hold the maximum number of cards in a deck.
+    maxDeckNumber DWORD 1 ; this is an initialized DWORD variable. this variable is used to hold the maximum number of decks.
 
-    chosenCard DWORD 0
+    chosenCard DWORD 0 ; this is an initialized DWORD variable. this variable is used to hold the value of the chosen card.
 
     cardDeck DWORD 52 DUP(0) ; this is an initialized array of DWORD elements. the elements are initialized to 0, and they are used to indicate which cards have
                              ; been dealt.
-    ; let H = 0, D = 13, S = 26, C = 39
-    ; H = Hearts, D = Diamonds, S = Spades, C = Clubs
-    ; 
-    ;
     
-    delayValue DWORD 3000 ; this is an initialized DWORD variable. this variable is used to hold the value of the delay in milliseconds.
+    delayValue DWORD 3000 ; this is an initialized DWORD variable. this variable is used to hold the value of 3 seconds in milliseconds.
+    delayValue2 DWORD 5000 ; this is an initialized DWORD variable. this variable is used to hold the value of 2 seconds in milliseconds.
+    delayValue3 DWORD 1000 ; this is an initialized DWORD variable. this variable is used to hold the value of 1 second in milliseconds.
 
     startingHandCount DWORD 2 ; this is an initialized DWORD variable. this variable is used to hold the starting hand count of the user.
     userTotalCards DWORD 0 ; this is an initialized DWORD variable. this variable is used to hold the total number of cards in the user's hand.
@@ -128,19 +158,15 @@ INCLUDELIB C:\Irvine\Irvine32.lib
     cardDeckSuits DWORD OFFSET displayHearts, OFFSET displayDiamonds, OFFSET displaySpades, OFFSET displayClubs ; this is an initialized array of BYTE elements. the elements are initialized
                                                                                                                 ; to the suits of a card deck.
 
-    ; PLEASE REMEMBER THAT HEARTS AND DIAMONDS ARE RED AND SPACES AND CLUBS ARE BLACK. THIS IS IMPORTANT FOR THE COLORING OF THE CARDS.
     cardDeckSuitCounts DWORD 4 DUP(13); this is an initialized array of BYTE elements. the elements are initialized to the counts of each suit in a card deck.
 
-    boolUserBust DWORD 0
+    boolUserBust DWORD 0 ; this is an initialized DWORD variable. this variable is used to determine whether the user has busted or not. 1 is true and 0 is false.
 
-    boolUser21 DWORD 0
+    boolUser21 DWORD 0 ; this is an initialized DWORD variable. this variable is used to determine whether the user has 21 or not. 1 is true and 0 is false.
 
-    boolHouseBust DWORD 0
+    boolHouseBust DWORD 0 ; this is an initialized DWORD variable. this variable is used to determine whether the house has busted or not. 1 is true and 0 is false.
      
-    boolHouse21 DWORD 0
-
-
-
+    boolHouse21 DWORD 0 ; this is an initialized DWORD variable. this variable is used to determine whether the house has 21 or not. 1 is true and 0 is false.
 
     boolGameWon DWORD ? ; this is an initialized DWORD variable. this variable is used to determine whether the user has won the game or not. 1 is true and 0 is false.
 
@@ -152,106 +178,40 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 ; **********************************************************************;
 ; Functional description of the main program
 ;   
-;   Inputs: This program does not take any direct inputs. The user will have a chance however to input characters and words.
+;   Inputs: 
 ;
-;   Outputs: This program does not have any direct outputs. The program will however display output strings.
+;   Outputs: 
 ;
 ;	Registers used and associated purpose of each:
-;       EAX - This is the Extended Accumulator register. This register is used for basic arithmetic operations, storing
-;             the return value of functions, and serving as the input for functions.
-;       EBX - This is the Extended Base register. This register is used for holding offsets for string.
-;	    ECX - This is the Extended Count register. This register is used for loops and sometimes serving as a pointer for strings.
-;       EDX - This is the Extended Data register. This register is used for storing the offset of strings
-;       ESI - This is the Extended Source Index register. This register is used as a pointer for strings.
-;       AL - This is the Accumulator Low register. This register is used for storing characters.
-;       BL - This is the Base Low register. This register is used for storing characters.
-;       EDI - This is the Extended Destination Index register. This register is used as a register for strings.
+;
 ;
 ;	Memory locations use and associated purpose of each:
-;       word1 - This is a string that is used as the first word to be guessed in the hangman game.
-;       word2 - This is a string that is used as the second word to be guessed in the hangman game.
-;       word3 - This is a string that is used as the third word to be guessed in the hangman game.
-;       word4 - This is a string that is used as the fourth word to be guessed in the hangman game.
-;       word5 - This is a string that is used as the fifth word to be guessed in the hangman game.
-;       word6 - This is a string that is used as the sixth word to be guessed in the hangman game.
-;       word7 - This is a string that is used as the seventh word to be guessed in the hangman game.
-;       word8 - This is a string that is used as the eighth word to be guessed in the hangman game.
-;	    word9 - This is a string that is used as the ninth word to be guessed in the hangman game.
-;       word10 - This is a string that is used as the tenth word to be guessed in the hangman game.
-;       promptStartGame - This is a string used to prompt the user to make the decision of whether or not they'd like to play the hangman game.
-;       displayRightGuessChar - This is a string used to inform the user that their guess of a character was correct.
-;       displayWrongGuessChar - This is a string used to inform the user that their guess of a character was incorrect.
-;       promptEnterChar - This is a string used to prompt the user to enter a character to guess.
-;       promptGuessWord - This is a string used to prompt the user to make the decision of whether or not they'd like to guess the word.
-;	    promptEnterWord - This is a string used to prompt the user to enter a word to guess.
-;	    displayRightGuessWord - This is a string used to inform the user that their guess of a word was correct.
-;	    displayWrongGuessWord - This is a string used to inform the user that their guess of a word was incorrect.
-;       displayWonGame - This is a string used to inform the user that they have won the game.
-;       displayLostGame - This is a string used to inform the user that they have lost the game.
-;       dispayCharRepeat - This is a string used to inform the user that they have already guessed a character.
-;       displayCharError - This is a string used to inform the user that they have entered an invalid character.
-;	    displayWordStr - This is a string used to inform the user what the word was.
-; 	    hangmanTop - This is a string used to display the top of the hangman.
-;       hangmanTop2 - This is a string used to display the second line of the hangman.
-;       hangmanWrong1 - This is a string used to display the third line of the hangman.
-;       hangmanWrong2 - This is a string used to display the fourth line of the hangman.
-;       hangmanWrong3 - This is a string used to display the fourth line of the hangman with an addition of an arm.
-;       hangmanWrong4 - This is a string used to display the fourth line of the hangman with an addition of both arms.
-;       hangmanWrong5 - This is a string used to display the fifth line of the hangman with an addition of a leg.
-;       hangmanWrong6 - This is a string used to display the fifth line of the hangman with an addition of both legs.
-;       hangmanBottom1 - This is a string used to display the sixth line of the hangman.
-;       hangmanBottom2 - This is a string used to display the seventh line of the hangman.
-;       displayHiddenWord - This is a string used to inform the user what the hidden word is.
-;       displayGuessedChars - This is a string used to inform the user what letters they have already guessed.
-;	    displayWordError - This is a string used to inform the user that they have entered an invalid word.
-;       promptTryAgain - This is a string used to prompt the user to make the decision of whether or not they'd like to run the program again.
-;       promptErrorTry - This is a string used to inform the user that their response to the TryAgain label is invalid. It then prompts the user to re-enter their response.
-;       wordBankOffsets - This is an array that is used to hold the offsets of the words that are used in the hangman game.
-;       userGuessChar - This is an array that is used to hold the user's guess of a character.
-;       userGuessWord - This is an array that is used to hold the user's guess of a word.
-;       userGuessWordLength - This is a variable that is used to hold the length of the user's guess of a word.
-;       chosenWordOffset - This is a variable that is used to hold the offset of the randomly selected word from the wordBankOffsets array.
-;       chosenWordLength - This is a variable that is used to hold the length of the randomly selected word from the wordBankOffsets array.
-;       guessesWrongMax - This is a variable that is used to hold the maximum number of wrong guesses that the user can make before losing the game.
-;       arrayWordDisplay - This is an array that is used to hold the word that the user is trying to guess.
-;       charsFound - This is a variable that is used to hold the number of characters that the user has found in the randomly selected word.
-;	    charGuesses - This is an array that is used to hold the letters that the user has guessed.
-;       charGuessesIndex - This is a variable that is used to hold the index of the charGuesses array.
-;       boolGameWon - This is a variable that is used to determine whether the user has won the game or not. 1 is true and 0 is false.
-;       alphabet - This is an array that is used to hold the alphabet letters that have been guessed by the user.
-;       answer - This is an array that is used to hold the user's response to the TryAgain label.
+;
 ;	Functional details: 
-;       This program first asks is the user would like to play the hangman game. If no, then the program ends. If yes, then the seed is randomized
-;       and a word from the word bank is chosen randomly. The user then has 6 guesses to determine what the word is. With each guess, the user
-;       may input a character. There are precautions in place to ensure invalid characters are not accepted. If the user is able to guess a correct
-;       letter, they face no penalties. If the user guesses incorrectly, then the the user loses a guess. In the case that the user does not correctly
-;       guess the entire word, they lose the game. In the case that the user does correctly guess the entire word, then the user wins the game. The user
-;       also has the opportunity to guess the entire word. There are precautions in place to ensure invalid words are not accepted. If the user guesses
-;       the right word, then the user wins the game. If the user guesses the wrong word, then they lose the game regardless of how many guesses they have
-;       left. In addition to this basic functionality, with every correct letter guessed, the respective letter in the word will be displayed. All the other
-;       characters that have not been guessed will remain as underscores. This program also displays all of the letters that the user guessed.
+;  
 ; **********************************************************************;
 
 .code
 
 ;***********************************
-; Description: This procedure handles the entire program.
-; Receives: This procedure does not directly receive anything.
-; Returns: This procedure does not directly return anything.
-; Requires: This procedure requires the Irvine32 library as well as every single memory variable in the .data section.
+; Description: 
+; Receives:
+; Returns: 
+; Requires: 
 ;***********************************
 CheckShuffleCards PROC
     
     CheckCards:
-        mov eax, 0
-        mov ecx, 0
+        mov eax, 0 ; this sets the value of eax to 0
+        mov ecx, 0 ; this sets the value of ecx to 0
+        mov ebx, maxDeckNumber ; this moves the value of maxDeckNumber into ebx
 
         .WHILE ecx < LENGTHOF cardDeck ; while the value in ecx is less than the length of the cardDeck array
-            .IF cardDeck[ecx*4] >= 1 ; if the value of the cardDeck array at the index in ecx is equal to 0
-                inc eax
+            .IF cardDeck[ecx*4] >= ebx ; if the value of the cardDeck array at the index in ecx is equal to 0
+                inc eax ; this increases the value in eax by 1
             .ENDIF
 
-            cmp eax, minimumCardBeforeShuffle ; this compares the value in eax to 13
+            cmp eax, minimumCardBeforeShuffle ; this compares the value in eax to 39
             jge ShuffleCards ; if the value in eax is greater than or equal to 3, then jump to the ShuffleCards label
 
             inc ecx ; this increases the value in ecx by 1
@@ -261,7 +221,7 @@ CheckShuffleCards PROC
 
     ShuffleCards:
         
-        call Crlf
+        call Crlf ; new line
 
         mov eax, lightGray + (black * 16) ; this sets the color of the text to light grey and the background to black
         call SetTextColor ; this sets the text color to the value in eax
@@ -269,14 +229,15 @@ CheckShuffleCards PROC
         mov edx, OFFSET displayShuffleCards ; prepares the string displayShuffleCards to be displayed
         call WriteString ; this displays a string from edx
 
-        call Crlf
+        call Crlf ; new line
+        call Crlf ; new line
 
         mov eax, delayValue ; this moves the value of delayValue into eax
         call Delay ; this delays the program for the amount of time in milliseconds specified in eax
 
-        Call Crlf
+        Call Crlf ; new line
 
-        mov ecx, 0
+        mov ecx, 0 ; this sets the value of ecx to 0
 
         .WHILE ecx < LENGTHOF cardDeck ; while the value in ecx is less than the length of the cardDeck array
             mov cardDeck[ecx*4], 0 ; this sets the value of the cardDeck array at the index in ecx to 0
@@ -288,10 +249,10 @@ CheckShuffleCards PROC
 CheckShuffleCards ENDP
 
 ;***********************************
-; Description: This procedure handles the entire program.
-; Receives: This procedure does not directly receive anything.
-; Returns: This procedure does not directly return anything.
-; Requires: This procedure requires the Irvine32 library as well as every single memory variable in the .data section.
+; Description: 
+; Receives: 
+; Returns: 
+; Requires: 
 ;***********************************
 SeedCard PROC
     mov eax, LENGTHOF cardDeckNumbers ; this gets the length of the cardDeckNumbers array and saves it in eax
@@ -302,10 +263,10 @@ SeedCard PROC
 SeedCard ENDP
 
 ;***********************************
-; Description: This procedure handles the entire program.
-; Receives: This procedure does not directly receive anything.
-; Returns: This procedure does not directly return anything.
-; Requires: This procedure requires the Irvine32 library as well as every single memory variable in the .data section.
+; Description: 
+; Receives: 
+; Returns: 
+; Requires: 
 ;***********************************
 SeedSuit PROC
     mov eax, LENGTHOF cardDeckSuits ; this gets the length of the cardDeckSuits array and saves it in eax
@@ -316,16 +277,13 @@ SeedSuit PROC
 SeedSuit ENDP
 
 ;***********************************
-; Description: This procedure handles the entire program.
-; Receives: This procedure does not directly receive anything.
-; Returns: This procedure does not directly return anything.
-; Requires: This procedure requires the Irvine32 library as well as every single memory variable in the .data section.
+; Description: 
+; Receives: 
+; Returns: 
+; Requires: 
 ;***********************************
 MainProgram PROC
-; NEED TO CLEAR THE HANDS WHEN DONE, BUT DONT CLEAR THE DECK COUNTS. THE DECK COUNTS ARE USED TO DETERMINE IF THE CARDS NEED TO BE SHUFFLED.
-; make a betting function???
-
-    StartGame:
+    StartGame: ; this label is used to display the main menu of the BlackJack game and prompt the user to decide whether they would like to play the game or not
         mov edx, OFFSET promptStartGame1 ; prepares the string promptStartGame1 to be displayed
         call WriteString ; this displays a string from edx
         
@@ -347,7 +305,7 @@ MainProgram PROC
         mov edx, OFFSET promtStartGame2 ; prepares the string promtStartGame2 to be displayed
         call WriteString ; this displays a string from edx
 
-        CheckAnswer:
+        CheckAnswer: ; this label is used to check the user's answer to the prompt of whether they would like to play the game or not
 
             mov eax, lightBlue + (black * 16) ; this sets the color of the text to light blue and the background to black
             call SetTextColor ; this sets the text color to the value in eax
@@ -365,8 +323,16 @@ MainProgram PROC
                 call Crlf ; new line
                 call Crlf ; new line
 
-                jmp PlayGame ; jump to the PlayGame label
+                jmp MainMenu ; jump to the MainMenu label
             .ELSEIF answer[0] == 'n' || answer[0] == 'N' ; if the answer is no
+                call Crlf ; new line
+                call Crlf ; new line
+
+                mov edx, OFFSET promptStartGame3 ; prepares the string promptStartGame3 to be displayed
+                call WriteString ; this displays a string from edx
+
+                call Crlf ; new line
+
                 jmp EndProgram
             .ELSE ; if the answer is not yes or no
                 call Crlf ; new line 
@@ -383,17 +349,139 @@ MainProgram PROC
                 jmp CheckAnswer ; jump to the CheckAnswer label
             .ENDIF ; end the if statements
 
-    PlayGame:
-        DefaultSettings:
+        MainMenu: ; this label is used if the user decided to play the game
+            
+            mov edx, OFFSET promptStartGame4 ; prepares the string promptStartGame4 to be displayed
+            call WriteString ; this displays a string from edx
+
+            CheckAnswer1: ; this label is used to check the user's answer to the prompt of whether they would like to hear the rules of the game or not
+
+                mov eax, lightBlue + (black * 16) ; this sets the color of the text to light blue and the background to black
+                call SetTextColor ; this sets the text color to the value in eax
+
+                mov edx, OFFSET answer ; this selects the array answer to be filled with a string
+                mov ecx, SIZEOF answer ; this sets the size of the answer to 2. this includes the character y or n, as well as the
+                                       ; null terminator
+
+                call readString ; this reads a string then saves the input in the edx offset
+
+                mov eax, lightGray + (black * 16) ; this sets the color of the text to light grey and the background to black
+                call SetTextColor ; this sets the text color to the value in eax
+
+                .IF answer[0] == 'y' || answer[0] == 'Y' ; if the answer is yes
+                    call Crlf ; new line
+                    call Crlf ; new line
+
+                    jmp ShowRules ; jump to the ShowRules label
+                .ELSEIF answer[0] == 'n' || answer[0] == 'N' ; if the answer is no
+                    call Crlf ; new line
+                    call Crlf ; new line
+
+                    mov edx, OFFSET promptStartGame5 ; prepares the string promptStartGame5 to be displayed
+                    call WriteString ; this displays a string from edx
+
+                    call Crlf ; new line
+                    call Crlf ; new line
+                    call Crlf ; new line
+
+                    jmp PlayGame ; jump to the PlayGame label
+                .ELSE ; if the answer is not yes or no
+                    call Crlf ; new line 
+
+                    mov eax, lightRed + (black * 16) ; this sets the color of the text to light red and the background to black
+                    call SetTextColor ; this sets the text color to the value in eax
+            
+                    mov edx, OFFSET promptErrorResp ; prepares the string promptErrorResp to be displayed
+                    call WriteString ; displays a string from the edx offset
+
+                    mov eax, lightGray + (black * 16) ; this sets the color of the text to light grey and the background to black
+                    call SetTextColor ; this sets the text color to the value in eax
+
+                    jmp CheckAnswer1 ; jump to the CheckAnswer1 label
+                .ENDIF ; end the if statements
+
+            ShowRules: ; this label is used to show the rules of the game to the user
+                mov edx, OFFSET displayRules ; prepares the string displayRules to be displayed
+                call WriteString ; this displays a string from edx
+
+                call Crlf ; new line
+                call Crlf ; new line
+
+                mov eax, delayValue2 ; this moves the value of delayValue2 into eax
+                call Delay ; this delays the program for the amount of time in milliseconds specified in eax
+
+                mov edx, OFFSET displayRules2 ; prepares the string displayRules2 to be displayed
+                call WriteString ; this displays a string from edx
+
+                call Crlf ; new line
+                call Crlf ; new line
+
+                mov eax, delayValue2 ; this moves the value of delayValue2 into eax
+                call Delay ; this delays the program for the amount of time in milliseconds specified in eax
+
+                mov edx, OFFSET displayRules3 ; prepares the string displayRules3 to be displayed
+                call WriteString ; this displays a string from edx
+
+                call Crlf ; new line
+                call Crlf ; new line
+
+                mov eax, delayValue2 ; this moves the value of delayValue2 into eax
+                call Delay ; this delays the program for the amount of time in milliseconds specified in eax
+
+                mov edx, OFFSET displayRules4 ; prepares the string displayRules4 to be displayed
+                call WriteString ; this displays a string from edx
+
+                call Crlf ; new lone
+                call Crlf ; new line
+
+                mov eax, delayValue2 ; this moves the value of delayValue2 into eax
+                call Delay ; this delays the program for the amount of time in milliseconds specified in eax
+
+                mov edx, OFFSET displayRules5 ; prepares the string displayRules5 to be displayed
+                call WriteString ; this displays a string from edx
+
+                call Crlf ; new line
+                call Crlf ; new line
+
+                mov eax, delayValue2 ; this moves the value of delayValue2 into eax
+                call Delay ; this delays the program for the amount of time in milliseconds specified in eax
+
+                mov edx, OFFSET displayRules6 ; prepares the string displayRules6 to be displayed
+                call WriteString ; this displays a string from edx
+
+                call Crlf ; new line
+                call Crlf ; new line
+
+                mov eax, delayValue2 ; this moves the value of delayValue2 into eax
+                call Delay ; this delays the program for the amount of time in milliseconds specified in eax
+
+                mov edx, OFFSET displayRules7 ; prepares the string displayRules7 to be displayed
+                call WriteString ; this displays a string from edx
+
+                call Crlf ; new line
+                call Crlf ; new line
+                call Crlf ; new line
+
+                mov eax, delayValue2 ; this moves the value of delayValue2 into eax
+                call Delay ; this delays the program for the amount of time in milliseconds specified in eax
+
+                jmp PlayGame ; jump to the PlayGame label
+
+    PlayGame: ; this label is ran to start running the BlackJack game
+        DefaultSettings: ; this label is used to set the default settings for the game
             call Randomize ; this seeds the random number generator with the current time
 
-            mov boolUserBust, 0
-            mov boolUser21, 0
+            mov boolUserBust, 0 ; this sets the value of boolUserBust to 0
+            mov boolUser21, 0 ; this sets the value of boolUser21 to 0
             
-            mov boolHouseBust, 0
-            mov boolHouse21, 0
+            mov boolHouseBust, 0 ; this sets the value of boolHouseBust to 0
+            mov boolHouse21, 0 ; this sets the value of boolHouse21 to 0
 
-            mov ecx, 0
+            mov userBet, 0 ; this sets the value of userBet to 0
+
+            mov aceCount, 0 ; this sets the value of aceCount to 0
+            
+            mov ecx, 0 ; this sets the value of ecx to 0
 
             .WHILE ecx < LENGTHOF userHand ; while the value in ecx is less than the length of the userHand array
                 mov userHand[ecx*4], 0 ; this sets the value of the userHand array at the index in ecx to 0
@@ -402,60 +490,135 @@ MainProgram PROC
                 inc ecx ; this increases the value in ecx by 1
             .ENDW
 
-        DealUser:
+        DealUser: ; this label is used to deal the user cards
 
             call CheckShuffleCards ; this calls the CheckShuffleCards procedure to check if the cards need to be shuffled
 
-            mov ecx, 0
+            mov ebx, minBet ; this moves the value of minBet into ebx
 
-            .WHILE ecx < startingHandCount
-
-                DetermineSuit:
-                    call SeedSuit ; this calls the SeedSuit procedure to generate a random number between 0 and the length of the cardDeckSuits array and saves it in eax
-
-                    mov edx, cardDeckSuits[eax*4]
-                    mov userHandSuit[ecx*4], edx
-
-                    mov ebx, 13
-                    mul ebx
-
-                    mov chosenCard, eax ; this saves the value in eax into chosenCard
-
-
-                DetermineNumber:
-                    call SeedCard ; this calls the SeedCard procedure to generate a random number between 0 and the length of the cardDeckNumbers array and saves it in eax
-
-                    mov edx, cardDeckNumbers[eax*4]
-                    mov userHand[ecx*4], edx ; this saves the value at the index in eax into the first element of the userHand array
-
-                    add chosenCard, eax ; this adds the value in eax to the value in chosenCard
+            .IF userWallet < ebx
                 
-                ProcessCard:
-                    mov eax, chosenCard ; this moves the value in chosenCard into eax
-                    mov ebx, maxDeckNumber ; this moves the value in maxDeckNumber into ebx
+                mov edx, OFFSET displayNotEnoughMoney ; prepares the string displayNotEnoughMoney to be displayed
+                call WriteString ; this displays a string from edx
 
-                    .IF cardDeck[eax*4] == ebx ; if the value of the cardDeck array at the index in eax is equal to ebx
-                        jmp DetermineSuit ; jump to the DetermineSuit label
+                call Crlf ; new line
+                call Crlf ; new line
+
+                jmp EndProgram ; jump to the EndProgram label
+                
+            .ENDIF
+
+            Betting:
+                mov edx, OFFSET displayWallet ; prepares the string displayWallet to be displayed
+                call WriteString ; this displays a string from edx
+
+                mov eax, lightGreen + (black * 16) ; this sets the color of the text to light green and the background to black
+                call SetTextColor ; this sets the text color to the value in eax
+
+                mov eax, userWallet ; this moves the value of userWallet into eax
+                call WriteDec ; this displays the value in eax as a decimal number
+
+                mov eax, lightGray + (black * 16) ; this sets the color of the text to light grey and the background to black
+                call SetTextColor ; this sets the text color to the value in eax
+            
+                call Crlf ; new line
+                call Crlf ; new line
+
+                mov edx, OFFSET promptBet ; prepares the string promptBet to be displayed
+                call WriteString ; this displays a string from edx
+
+                mov eax, lightBlue + (black * 16) ; this sets the color of the text to light blue and the background to black
+                call SetTextColor ; this sets the text color to the value in eax
+
+                call ReadDec ; this reads a decimal number from the user and saves it in eax
+
+                mov userBet, eax ; this saves the value in eax into userBet
+
+                mov eax, lightGray + (black * 16) ; this sets the color of the text to light grey and the background to black
+                call SetTextColor ; this sets the text color to the value in eax
+
+                call Crlf ; new line
+                call Crlf ; new line
+
+                CheckBet:
+                    mov ebx, minBet ; this moves the value of minBet into ebx
+                    mov edx, userWallet ; this moves the value of userWallet into edx
+
+                    .IF userBet < ebx || userBet > edx ; if the value of userBet is less than the value of minBet or greater than the value of userWallet
+                        mov eax, lightRed + (black * 16) ; this sets the color of the text to light red and the background to black
+                        call SetTextColor ; this sets the text color to the value in eax
+
+                        mov edx, OFFSET promptRebet ; prepares the string promptRebet to be displayed
+                        call WriteString ; this displays a string from edx
+
+                        mov eax, lightGray + (black * 16) ; this sets the color of the text to light grey and the background to black
+                        call SetTextColor ; this sets the text color to the value in eax
+
+                        call Crlf ; new line
+                        call Crlf ; new line
+
+                        jmp Betting           
+                    .ELSE
+                        mov edx, OFFSET displayLuckyNumber
+                        call WriteString
+
+                        call Crlf ; new line
+                        call Crlf ; new line
+                        call Crlf ; new line
+
+                        jmp SuccessBet
                     .ENDIF
 
-                    inc cardDeck[eax*4] ; this increases the value of the cardDeck array at the index in eax by 1
+            SuccessBet:        
+                mov ecx, 0 ; this sets the value of ecx to 0
+
+                .WHILE ecx < startingHandCount ; while the value in ecx is less than the startingHandCount variable
+
+                    DetermineSuit: ; this label is used to determine the suit of the dealt card
+                        call SeedSuit ; this calls the SeedSuit procedure to generate a random number between 0 and the length of the cardDeckSuits array and saves it in eax
+
+                        mov edx, cardDeckSuits[eax*4] ; this moves the value at the index in eax times four of the cardDeckSuits array into edx
+                        mov userHandSuit[ecx*4], edx ; this saves the value at the index in eax times four into the first element of the userHandSuit array
+
+                        mov ebx, 13 ; this moves the value of 13 into ebx
+                        mul ebx ; this multiplies the value in eax by the value in ebx and saves the result in eax
+
+                        mov chosenCard, eax ; this saves the value in eax into chosenCard
+
+                    DetermineNumber: ; this label is used to determine the number of the dealt card
+                        call SeedCard ; this calls the SeedCard procedure to generate a random number between 0 and the length of the cardDeckNumbers array and saves it in eax
+
+                        mov edx, cardDeckNumbers[eax*4] ; this moves the value at the index in eax times four of the cardDeckNumbers array into edx
+                        mov userHand[ecx*4], edx ; this saves the value at the index in eax times four into the first element of the userHand array
+
+                        add chosenCard, eax ; this adds the value in eax to the value in chosenCard
                 
-                inc ecx
-            .ENDW
+                    ProcessCard: ; this label is used to check if the card limit has been reached for the dealt card
+                        mov eax, chosenCard ; this moves the value in chosenCard into eax
+                        mov ebx, maxDeckNumber ; this moves the value in maxDeckNumber into ebx
 
-            mov userTotalCards, ecx ; this saves the value in ecx into userTotalCards
-
-            CalculateTotalUser:
-                mov ecx, 0
-                mov userTotalValue, 0 ; this sets the value of userTotalValue to 0
-
-                .WHILE ecx < userTotalCards
-                    .IF userHand[ecx*4] == OFFSET displayAce ; if the card is an Ace
-                        add userTotalValue, 11 ; this adds 11 to the value of userTotalValue
-                        mov eax, twentyOne ; this moves the value of userTotalValue into eax
-                        .IF userTotalValue > eax ; if the value of userTotalValue is greater than 21
-                            sub userTotalValue, 10 ; this subtracts 10 from the value of userTotalValue
+                        .IF cardDeck[eax*4] == ebx ; if the value of the cardDeck array at the index in eax is equal to ebx
+                            jmp DetermineSuit ; jump to the DetermineSuit label
                         .ENDIF
+
+                        inc cardDeck[eax*4] ; this increases the value of the cardDeck array at the index in eax by 1
+                
+                    inc ecx ; this increases the value in ecx by 1
+                .ENDW
+
+                mov userTotalCards, ecx ; this saves the value in ecx into userTotalCards
+
+            CalculateTotalUser: ; this label is used to calculate the total value of the user's hand of cards
+                mov ecx, 0 ; this sets the value of ecx to 0
+                mov userTotalValue, 0 ; this sets the value of userTotalValue to 0
+                mov aceCount, 0
+
+                .WHILE ecx < userTotalCards ; while the value in ecx is less than the value of userTotalCards
+
+
+                    .IF userHand[ecx*4] == OFFSET displayAce ; if the card is an Ace
+                        inc aceCount
+                        add userTotalValue, 11 ; this adds 11 to the value of userTotalValue
                     .ELSEIF userHand[ecx*4] == OFFSET displayTwo ; if the card is a Two
                         add userTotalValue, 2 ; this adds 2 to the value of userTotalValue
                     .ELSEIF userHand[ecx*4] == OFFSET displayThree ; if the card is a Three
@@ -476,10 +639,19 @@ MainProgram PROC
                         add userTotalValue, 10 ; this adds 10 to the value of userTotalValue
                     .ENDIF
 
+                    mov eax, twentyOne ; this moves the value of userTotalValue into eax
+
+                    ; BELOW IS THE ACE ALGORITHM. THIS ALGORITHM WAS FOUND AT: https://people.cs.pitt.edu/~jmisurda/teaching/cs401/2157/cs0401-2157-project2.htm
+
+                    .WHILE userTotalValue > eax && aceCount > 0  ; while the value of userTotalValue is greater than 21 and the value of aceCount is greater than 0
+                        sub userTotalValue, 10 ; this subtracts 10 from the value of userTotalValue
+                        dec aceCount ; this decreases the value of aceCount by 1
+                    .ENDW
+
                     inc ecx ; this increases the value in ecx by 1
                 .ENDW
 
-            ShowCardsUser:
+            ShowCardsUser: ; this label is used to show the user's hand of cards
                 mov edx, OFFSET displayCardsUser ; prepares the string displayCardsUser to be displayed
                 call WriteString ; this displays a string from edx
 
@@ -489,9 +661,13 @@ MainProgram PROC
                 mov eax, black + (white * 16) ; this sets the color of the text to black and the background to black
                 call SetTextColor ; this sets the text color to the value in eax
 
-                mov ecx, 0
+                mov ecx, 0 ; this sets the value of ecx to 0
 
-                .WHILE ecx < userTotalCards
+                .WHILE ecx < userTotalCards ; while the value in ecx is less than the value of userTotalCards
+
+                    mov eax, delayValue3 ; this moves the value of delayValue into eax
+                    call Delay ; this delays the program for the amount of time in milliseconds specified in eax
+
                     mov eax, black + (white * 16) ; this sets the color of the text to white and the background to black
                     call SetTextColor ; this sets the text color to the value in eax
 
@@ -518,6 +694,9 @@ MainProgram PROC
 
                 .ENDW
 
+                mov eax, delayValue3 ; this moves the value of delayValue into eax
+                call Delay ; this delays the program for the amount of time in milliseconds specified in eax
+
                 call Crlf ; new line
             
                 mov eax, lightGray + (black * 16) ; this sets the color of the text to light grey and the background to black
@@ -538,26 +717,26 @@ MainProgram PROC
                 call Crlf ; new line
                 call Crlf ; new line
 
-            CheckForEndGameUser:
-                mov eax, userTotalValue
+            CheckForEndGameUser: ; this label is used to determine whether the user has busted or has 21
+                mov eax, userTotalValue ; this moves the value of userTotalValue into eax
 
-                .IF eax > twentyOne
-                    mov boolUserBust, 1
-                    jmp EndGame
-                .ELSEIF eax == twentyOne
-                    mov boolUser21, 1
+                .IF eax > twentyOne ; if the value of userTotalValue is greater than 21
+                    mov boolUserBust, 1 ; this sets the value of boolUserBust to 1
+                    jmp EndGame ; jump to the EndGame label
+                .ELSEIF eax == twentyOne ; if the value of userTotalValue is equal to 21
+                    mov boolUser21, 1 ; this sets the value of boolUser21 to 1
 
                     mov eax, delayValue ; this moves the value of delayValue into eax
                     call Delay ; this delays the program for the amount of time in milliseconds specified in eax
 
-                    jmp DealHouse
+                    jmp DealHouse ; jump to the DealHouse label
                 .ENDIF
 
-            HitOrStandUser:
+            HitOrStandUser: ; this label is used to prompt the user to decide whether they would like to hit or stand
                 mov edx, OFFSET promptHitOrStand ; prepares the string promptHitOrStand to be displayed
                 call WriteString ; this displays a string from edx
 
-                CheckAnswer2:
+                CheckAnswer2: ; this label is used to check the user's answer to the prompt of whether they would like to hit or stand
 
                     mov eax, lightBlue + (black * 16) ; this sets the color of the text to light blue and the background to black
                     call SetTextColor ; this sets the text color to the value in eax
@@ -599,33 +778,32 @@ MainProgram PROC
                         jmp CheckAnswer2 ; jump to the CheckAnswer2 label
                     .ENDIF ; end the if statements
 
-            HitUser:
+            HitUser: ; this label is ran if the user wants to hit
 
-                call CheckShuffleCards
+                call CheckShuffleCards ; this calls the CheckShuffleCards procedure to check if the cards need to be shuffled
 
                 mov ecx, userTotalCards ; this moves the value of userTotalCards into ecx
 
-                DetermineSuit2:
+                DetermineSuit2: ; this label is used to determine the suit of the dealt card
                     call SeedSuit ; this calls the SeedSuit procedure to generate a random number between 0 and the length of the cardDeckSuits array and saves it in eax
 
-                    mov edx, cardDeckSuits[eax*4]
-                    mov userHandSuit[ecx*4], edx
+                    mov edx, cardDeckSuits[eax*4] ; this moves the value at the index in eax times four of the cardDeckSuits array into edx
+                    mov userHandSuit[ecx*4], edx ; this saves the value at the index in eax times four into the first element of the userHandSuit array
 
-                    mov ebx, 13
-                    mul ebx
+                    mov ebx, 13 ; this moves the value of 13 into ebx
+                    mul ebx ; this multiplies the value in eax by the value in ebx and saves the result in eax
 
                     mov chosenCard, eax ; this saves the value in eax into chosenCard
 
-
-                DetermineNumber2:
+                DetermineNumber2: ; this label is used to determine the number of the dealt card
                     call SeedCard ; this calls the SeedCard procedure to generate a random number between 0 and the length of the cardDeckNumbers array and saves it in eax
 
-                    mov edx, cardDeckNumbers[eax*4]
-                    mov userHand[ecx*4], edx ; this saves the value at the index in eax into the first element of the userHand array
+                    mov edx, cardDeckNumbers[eax*4] ; this moves the value at the index in eax times four of the cardDeckNumbers array into edx
+                    mov userHand[ecx*4], edx ; this saves the value at the index in eax times four into the first element of the userHand array
 
                     add chosenCard, eax ; this adds the value in eax to the value in chosenCard
                 
-                ProcessCard2:
+                ProcessCard2: ; this label is used to check if the card limit has been reached for the dealt card
                     mov eax, chosenCard ; this moves the value in chosenCard into eax
                     mov ebx, maxDeckNumber ; this moves the value in maxDeckNumber into ebx
 
@@ -641,37 +819,37 @@ MainProgram PROC
 
                 jmp CalculateTotalUser ; jump to the CalculateTotalUser label
 
-            StandUser:
+            StandUser: ; this label is ran if the user wants to stand
                 jmp DealHouse ; jump to the DealHouse label
         
-        DealHouse:
+        DealHouse: ; this label is used to deal the house cards
             
             call CheckShuffleCards ; this calls the CheckShuffleCards procedure to check if the cards need to be shuffled
 
-            mov ecx, 0
+            mov ecx, 0 ; this sets the value of ecx to 0
 
-            .WHILE ecx < startingHandCount
+            .WHILE ecx < startingHandCount ; while the value in ecx is less than the startingHandCount variable
 
-                DetermineSuit3:
+                DetermineSuit3: ; this label is used to determine the suit of the dealt card
                     call SeedSuit ; this calls the SeedSuit procedure to generate a random number between 0 and the length of the cardDeckSuits array and saves it in eax
 
-                    mov edx, cardDeckSuits[eax*4]
-                    mov houseHandSuit[ecx*4], edx
+                    mov edx, cardDeckSuits[eax*4] ; this moves the value at the index in eax times four of the cardDeckSuits array into edx
+                    mov houseHandSuit[ecx*4], edx ; this saves the value at the index in eax times four into the first element of the houseHandSuit array
 
-                    mov ebx, 13
-                    mul ebx
+                    mov ebx, 13 ; this moves the value of 13 into ebx
+                    mul ebx ; this multiplies the value in eax by the value in ebx and saves the result in eax
 
                     mov chosenCard, eax ; this saves the value in eax into chosenCard
 
-                DetermineNumber3:
+                DetermineNumber3: ; this label is used to determine the number of the dealt card
                     call SeedCard ; this calls the SeedCard procedure to generate a random number between 0 and the length of the cardDeckNumbers array and saves it in eax
 
-                    mov edx, cardDeckNumbers[eax*4]
+                    mov edx, cardDeckNumbers[eax*4] ; this moves the value at the index in eax times four of the cardDeckNumbers array into edx
                     mov houseHand[ecx*4], edx ; this saves the value at the index in eax into the first element of the houseHand array
 
                     add chosenCard, eax ; this adds the value in eax to the value in chosenCard
 
-                ProcessCard3:
+                ProcessCard3: ; this label is used to check if the card limit has been reached for the dealt card
                     mov eax, chosenCard ; this moves the value in chosenCard into eax
                     mov ebx, maxDeckNumber ; this moves the value in maxDeckNumber into ebx
 
@@ -681,22 +859,20 @@ MainProgram PROC
 
                     inc cardDeck[eax*4] ; this increases the value of the cardDeck array at the index in eax by 1
 
-                inc ecx
+                inc ecx ; this increases the value in ecx by 1
             .ENDW
 
             mov houseTotalCards, ecx ; this saves the value in ecx into houseTotalCards
 
-            CalculateTotalHouse:
-                mov ecx, 0
+            CalculateTotalHouse: ; this label is used to calculate the total value of the house's hand of cards
+                mov ecx, 0 ; this sets the value of ecx to 0
                 mov houseTotalValue, 0 ; this sets the value of houseTotalValue to 0
+                mov aceCount, 0 ; this sets the value of aceCount to 0
 
-                .WHILE ecx < houseTotalCards
+                .WHILE ecx < houseTotalCards ; while the value in ecx is less than the value of houseTotalCards
                     .IF houseHand[ecx*4] == OFFSET displayAce ; if the card is an Ace
+                        inc aceCount ; increase the variable aceCount by 1
                         add houseTotalValue, 11 ; this adds 11 to the value of houseTotalValue
-                        mov eax, twentyOne ; this moves the value of houseTotalValue into eax
-                        .IF houseTotalValue > eax ; if the value of houseTotalValue is greater than 21
-                            sub houseTotalValue, 10 ; this subtracts 10 from the value of houseTotalValue
-                        .ENDIF
                     .ELSEIF houseHand[ecx*4] == OFFSET displayTwo ; if the card is a Two
                         add houseTotalValue, 2 ; this adds 2 to the value of houseTotalValue
                     .ELSEIF houseHand[ecx*4] == OFFSET displayThree ; if the card is a Three
@@ -717,10 +893,19 @@ MainProgram PROC
                         add houseTotalValue, 10 ; this adds 10 to the value of houseTotalValue
                     .ENDIF
 
+                    mov eax, twentyOne ; this moves the value of userTotalValue into eax
+
+                    ; BELOW IS THE ACE ALGORITHM. THIS ALGORITHM WAS FOUND AT: https://people.cs.pitt.edu/~jmisurda/teaching/cs401/2157/cs0401-2157-project2.htm
+
+                    .WHILE houseTotalValue > eax && aceCount > 0  ; while the value of houseTotalValue is greater than 21 and the value of aceCount is greater than 0
+                        sub houseTotalValue, 10 ; this subtracts 10 from the value of houseTotalValue
+                        dec aceCount ; this decreases the value of aceCount by 1
+                    .ENDW
+
                     inc ecx ; this increases the value in ecx by 1
                 .ENDW
 
-             ShowCardsHouse:
+             ShowCardsHouse: ; this label is used to show the house's hand of cards
                 mov edx, OFFSET displayCardsHouse ; prepares the string displayCardsHouse to be displayed
                 call WriteString ; this displays a string from edx
 
@@ -730,9 +915,13 @@ MainProgram PROC
                 mov eax, black + (white * 16) ; this sets the color of the text to black and the background to black
                 call SetTextColor ; this sets the text color to the value in eax
 
-                mov ecx, 0
+                mov ecx, 0 ; this sets the value of ecx to 0
 
-                .WHILE ecx < houseTotalCards
+                .WHILE ecx < houseTotalCards ; while the value in ecx is less than the value of houseTotalCards
+
+                    mov eax, delayValue3 ; this moves the value of delayValue into eax
+                    call Delay ; this delays the program for the amount of time in milliseconds specified in eax
+
                     mov eax, black + (white * 16) ; this sets the color of the text to white and the background to black
                     call SetTextColor ; this sets the text color to the value in eax
 
@@ -759,6 +948,9 @@ MainProgram PROC
 
                 .ENDW
 
+                mov eax, delayValue3 ; this moves the value of delayValue into eax
+                call Delay ; this delays the program for the amount of time in milliseconds specified in eax
+
                 call Crlf ; new line
             
                 mov eax, lightGray + (black * 16) ; this sets the color of the text to light grey and the background to black
@@ -780,49 +972,49 @@ MainProgram PROC
                 call Crlf ; new line
 
 
-                CheckForEndGameHouse:
-                    mov eax, delayValue
+                CheckForEndGameHouse: ; this label is used to determine whether the house has busted or has 21
+                    mov eax, delayValue ; this moves the value of delayValue into eax
 
                     call Delay ; this calls the Delay procedure to delay the program for a certain amount of time
 
                     mov eax, houseTotalValue ; this moves the value of userTotalValue into eax
 
-                    .IF eax > twentyOne
-                        mov boolHouseBust, 1
+                    .IF eax > twentyOne ; if the value of houseTotalValue is greater than 21
+                        mov boolHouseBust, 1 ; this sets the value of boolHouseBust to 1
                         
-                        jmp EndGame
-                    .ELSEIF eax == twentyOne
-                        mov boolHouse21, 1
+                        jmp EndGame ; jump to the EndGame label
+                    .ELSEIF eax == twentyOne ; if the value of houseTotalValue is equal to 21
+                        mov boolHouse21, 1 ; this sets the value of boolHouse21 to 1
                         
-                        jmp EndGame
-                    .ELSEIF eax >= 17
-                        jmp EndGame
-                    .ELSE
+                        jmp EndGame ; jump to the EndGame label
+                    .ELSEIF eax >= 17 ; if the value of houseTotalValue is greater than or equal to 17
+                        jmp EndGame ; jump to the EndGame label
+                    .ELSE ; if the value of houseTotalValue is less than 17
 
-                        call CheckShuffleCards
+                        call CheckShuffleCards ; this calls the CheckShuffleCards procedure to check if the cards need to be shuffled
 
                         mov ecx, houseTotalCards ; this moves the value of houseTotalCards into ecx
 
-                        DetermineSuit4:
+                        DetermineSuit4: ; this label is used to determine the suit of the dealt card
                             call SeedSuit ; this calls the SeedSuit procedure to generate a random number between 0 and the length of the cardDeckSuits array and saves it in eax
 
-                            mov edx, cardDeckSuits[eax*4]
-                            mov houseHandSuit[ecx*4], edx
+                            mov edx, cardDeckSuits[eax*4] ; this moves the value at the index in eax times four of the cardDeckSuits array into edx
+                            mov houseHandSuit[ecx*4], edx ; this saves the value at the index in eax times four into the first element of the houseHandSuit array
 
-                            mov ebx, 13
-                            mul ebx
+                            mov ebx, 13 ; this moves the value of 13 into ebx
+                            mul ebx ; this multiplies the value in eax by the value in ebx and saves the result in eax
 
                             mov chosenCard, eax ; this saves the value in eax into chosenCard
 
-                        DetermineNumber4:
+                        DetermineNumber4: ; this label is used to determine the number of the dealt card
                             call SeedCard ; this calls the SeedCard procedure to generate a random number between 0 and the length of the cardDeckNumbers array and saves it in eax
 
-                            mov edx, cardDeckNumbers[eax*4]
+                            mov edx, cardDeckNumbers[eax*4] ; this moves the value at the index in eax times four of the cardDeckNumbers array into edx
                             mov houseHand[ecx*4], edx ; this saves the value at the index in eax into the first element of the houseHand array
 
                             add chosenCard, eax ; this adds the value in eax to the value in chosenCard
 
-                        ProcessCard4:
+                        ProcessCard4: ; this label is used to check if the card limit has been reached for the dealt card
                             mov eax, chosenCard ; this moves the value in chosenCard into eax
                             mov ebx, maxDeckNumber ; this moves the value in maxDeckNumber into ebx
 
@@ -832,17 +1024,17 @@ MainProgram PROC
 
                             inc cardDeck[eax*4] ; this increases the value of the cardDeck array at the index in eax by 1
 
-                        inc ecx
+                        inc ecx ; this increases the value in ecx by 1
 
                         mov houseTotalCards, ecx ; this saves the value in ecx into houseTotalCards
 
                         jmp CalculateTotalHouse ; jump to the CalculateTotalHouse label
                     .ENDIF
 
-        EndGame:
+        EndGame: ; this label is used to determine the winner of the game
             
-            .IF boolUserBust == 1
-
+            .IF boolUserBust == 1 ; if the user has busted
+                
                 mov eax, lightRed + (black * 16) ; this sets the color of the text to light red and the background to black
                 call SetTextColor ; this sets the text color to the value in eax
 
@@ -854,8 +1046,12 @@ MainProgram PROC
 
                 call Crlf ; new line
 
-                jmp TryAgain
-            .ELSEIF boolHouseBust == 1
+                mov eax, userBet ; this moves the value of userBet into eax
+
+                sub userWallet, eax ; this subtracts the value in eax from the value in userWallet
+
+                jmp TryAgain ; jump to the TryAgain label
+            .ELSEIF boolHouseBust == 1 ; if the house has busted
 
                 mov eax, lightGreen + (black * 16) ; this sets the color of the text to light green and the background to black
                 call SetTextColor ; this sets the text color to the value in eax
@@ -866,10 +1062,24 @@ MainProgram PROC
                 mov eax, lightGray + (black * 16) ; this sets the color of the text to light grey and the background to black
                 call SetTextColor ; this sets the text color to the value in eax
 
+                mov eax, userBet ; this moves the value of userBet into eax
+
+                add userWallet, eax ; this adds the value in eax to the value in userWallet
+
                 call Crlf ; new line
 
-                jmp TryAgain
-            .ELSEIF boolUser21 == 1 && boolHouse21 == 0
+                jmp TryAgain ; jump to the TryAgain label
+            .ELSEIF boolUser21 == 1 && boolHouse21 == 0 ; if the user has 21 and the house does not
+                .IF userTotalCards == 2 ; if the user has a natural BlackJack
+                    
+                    mov eax, userBet ; this moves the value of userBet into eax
+                    mov ebx, blackJackMultiplier ; this moves the value of blackJackMultiplier into ebx
+
+                    mul ebx ; this multiplies the value in eax by the value in ebx and saves the result in eax
+
+                    mov userWallet, eax ; this moves the value in eax into userWallet
+
+                .ENDIF
 
                 mov eax, lightGreen + (black * 16) ; this sets the color of the text to light green and the background to black
                 call SetTextColor ; this sets the text color to the value in eax
@@ -882,15 +1092,18 @@ MainProgram PROC
                 
                 call Crlf ; new line
 
-                jmp TryAgain
-            .ELSEIF boolUser21 == 1 && boolHouse21 == 1
+                mov eax, userBet ; this moves the value of userBet into eax
+                add userWallet, eax ; this adds the value in eax to the value in userWallet
+
+                jmp TryAgain ; jump to the TryAgain label
+            .ELSEIF boolUser21 == 1 && boolHouse21 == 1 ; if the user has 21 and the house has 21
 
                 mov edx, OFFSET displayTie21 ; prepares the string displayTie21 to be displayed
                 call WriteString ; this displays a string from edx
 
                 call Crlf ; new line
 
-                jmp TryAgain
+                jmp TryAgain ; jump to the TryAgain label
 
             .ELSEIF boolUser21 == 0 && boolHouse21 == 1
 
@@ -905,25 +1118,28 @@ MainProgram PROC
 
                 call Crlf ; new line
 
-                jmp TryAgain
+                mov eax, userBet ; this moves the value of userBet into eax
+                sub userWallet, eax ; this subtracts the value in eax from the value in userWallet
+
+                jmp TryAgain ; jump to the TryAgain label
             .ENDIF
 
             mov eax, userTotalValue ; this moves the value of userTotalValue into eax
 
-            .IF eax > houseTotalValue
-                jmp UserWins
-            .ELSEIF eax == houseTotalValue
+            .IF eax > houseTotalValue ; if the value of userTotalValue is greater than the value of houseTotalValue
+                jmp UserWins ; jump to the UserWins label
+            .ELSEIF eax == houseTotalValue ; if the value of userTotalValue is equal to the value of houseTotalValue
                 mov edx, OFFSET displayTie ; prepares the string displayTie to be displayed
                 call WriteString ; this displays a string from edx
 
                 call Crlf ; new line
 
-                jmp TryAgain
-            .ELSE
-                jmp HouseWins
+                jmp TryAgain ; jump to the TryAgain label
+            .ELSE ; if the value of userTotalValue is less than the value of houseTotalValue
+                jmp HouseWins ; jump to the HouseWins label
             .ENDIF
 
-            UserWins:
+            UserWins: ; this label is ran if the user has won the game
                 mov eax, lightGreen + (black * 16) ; this sets the color of the text to light green and the background to black
                 call SetTextColor ; this sets the text color to the value in eax
 
@@ -932,11 +1148,14 @@ MainProgram PROC
 
                 call Crlf ; new line
 
+                mov eax, userBet ; this moves the value of userBet into eax
+                add userWallet, eax ; this adds the value in eax to the value in userWallet
+
                 mov eax, lightGray + (black * 16) ; this sets the color of the text to light grey and the background to black
                 call SetTextColor ; this sets the text color to the value in eax
 
                 jmp TryAgain ; jump to the TryAgain label
-            HouseWins:
+            HouseWins: ; this label is ran if the house has won the game
                 mov eax, lightRed + (black * 16) ; this sets the color of the text to light red and the background to black
                 call SetTextColor ; this sets the text color to the value in eax
 
@@ -944,6 +1163,9 @@ MainProgram PROC
                 call WriteString ; this displays a string from edx
 
                 call Crlf ; new line
+
+                mov eax, userBet ; this moves the value of userBet into eax
+                sub userWallet, eax ; this subtracts the value in eax from the value in userWallet
 
                 mov eax, lightGray + (black * 16) ; this sets the color of the text to light grey and the background to black
                 call SetTextColor ; this sets the text color to the value in eax
