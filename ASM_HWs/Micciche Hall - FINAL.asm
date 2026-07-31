@@ -116,19 +116,20 @@ INCLUDELIB C:\Irvine\Irvine32.lib
     ; HOLDING USER INPUTTED DATA.
     ;*************************************
 
-    blackJackMultiplier DWORD 2 ; this is an initialized DWORD variable. this variable is used to hold the multiplier for a blackjack hand.
+    BLACKJACKMULTIPLIER DWORD 2 ; this is an initialized DWORD variable. this variable is used to hold the multiplier for a blackjack hand. this is a constant.
 
     userWallet DWORD 250 ; this is an initialized DWORD variable. this variable is used to hold the amount of money the user has in their wallet.
 
-    minBet DWORD 25 ; this is an initialized DWORD variable. this variable is used to hold the minimum bet amount.
+    MINBET DWORD 25 ; this is an initialized DWORD variable. this variable is used to hold the minimum bet amount. this is a constant.
 
     userBet DWORD 0 ; this is an initialized DWORD variable. this variable is used to hold the amount of money the user has bet.
 
     aceCount DWORD 0 ; this is an initialized DWORD variable. this variable is used to hold the number of aces in a hand for the ace algorithm.
 
-    minimumCardBeforeShuffle DWORD 39 ; this is an initialized DWORD variable. this variable is used to hold the minimum number of cards in a deck before the deck needs to be shuffled.
+    MINIMUMCARDSBEFORESHUFFLE DWORD 39 ; this is an initialized DWORD variable. this variable is used to hold the minimum number of cards in a deck before the deck needs to be shuffled.
+                                       ; this is a constant.
 
-    maxDeckNumber DWORD 1 ; this is an initialized DWORD variable. this variable is used to hold the maximum number of decks.
+    MAXDECKNUMBER DWORD 1 ; this is an initialized DWORD variable. this variable is used to hold the maximum number of decks. this is a constant.
 
     chosenCard DWORD 0 ; this is an initialized DWORD variable. this variable is used to hold the value of the chosen card.
 
@@ -145,7 +146,7 @@ INCLUDELIB C:\Irvine\Irvine32.lib
     userHandSuit DWORD 10 DUP(0) ; this is an initialized array of DWORD elements. the elements are initialized to 0, and they are used to hold the user's suits.
     userTotalValue DWORD ? ; this is an uninitialized DWORD variable. this variable is used to hold the total value of the user's hand of cards.
 
-    twentyOne DWORD 21 ; this is an initialized DWORD variable. this variable is used to hold the value of 21, which is the winning value in a game of blackjack.
+    TWENTYONE DWORD 21 ; this is an initialized DWORD variable. this variable is used to hold the value of 21, which is the winning value in a game of blackjack. this is a constant.
 
     houseTotalCards DWORD 0 ; this is an initialized DWORD variable. this variable is used to hold the total number of cards in the house's hand.
     houseHand DWORD 10 DUP(0) ; this is an initialized array of DWORD elements. the elements are initialized to 0, and they are used to hold the house's hand of cards.
@@ -247,13 +248,13 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 ;       promptTryAgain - this prompts the user to decide whether they'd like to continue the program or not.
 ;       promptErrorTry - this declares that the user entered an invalid response, then it prompts the user to try again.
 ;       promptErrorResp - this declares that the user entered an invalid response, then it prompts the user to try again.
-;       blackJackMultiplier - this is a multiplier used to calculate the winnings for a blackjack hand.
+;       BLACKJACKMULTIPLIER - this is a multiplier used to calculate the winnings for a blackjack hand. this is a constant.
 ;       userWallet - this is a variable that holds the amount of money the user has in their wallet.
-;       minBet - this is a variable that holds the minimum bet amount.
+;       MINBET - this is a variable that holds the minimum bet amount.
 ;       userBet - this is a variable that holds the amount of money the user has bet.
 ;       aceCount - this is a variable that holds the number of aces in the user's hand.
-;       minimumCardBeforeShuffle - this is a variable that holds the minimum number of cards before the deck is shuffled.
-;       maxDeckNumber - this is a variable that holds the maximum number of decks in the game.
+;       MINIMUMCARDSBEFORESHUFFLE - this is a variable that holds the minimum number of cards before the deck is shuffled. this is a constant.
+;       MAXDECKNUMBER - this is a variable that holds the maximum number of decks in the game. this is a constant.
 ;       chosenCard - this is a variable that holds the card that has been chosen.
 ;       cardDeck - this is an array that holds all the cards in the deck.
 ;       delayValue - this is a variable that holds the delay value for the program.
@@ -264,7 +265,7 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 ;       userHand - this is an array that holds all the cards in the user's hand.
 ;       userHandSuit - this is an array that holds all the suits in the user's hand.
 ;       userTotalValue - this is a variable that holds the total value of the user's hand.
-;       twentyOne - this is a variable that holds the value of 21.
+;       TWENTYONE - this is a variable that holds the value of 21. this is a constant.
 ;       houseTotalCards - this is a variable that holds the total number of cards in the house's hand.
 ;       houseHand - this is an array that holds all the cards in the house's hand.
 ;       houseHandSuit - this is an array that holds all the suits in the house's hand.
@@ -301,14 +302,14 @@ CheckShuffleCards PROC
     CheckCards:
         mov eax, 0 ; this sets the value of eax to 0
         mov ecx, 0 ; this sets the value of ecx to 0
-        mov ebx, maxDeckNumber ; this moves the value of maxDeckNumber into ebx
+        mov ebx, MAXDECKNUMBER ; this moves the value of MAXDECKNUMBER into ebx
 
         .WHILE ecx < LENGTHOF cardDeck ; while the value in ecx is less than the length of the cardDeck array
             .IF cardDeck[ecx*4] >= ebx ; if the value of the cardDeck array at the index in ecx is equal to 0
                 inc eax ; this increases the value in eax by 1
             .ENDIF
 
-            cmp eax, minimumCardBeforeShuffle ; this compares the value in eax to 39
+            cmp eax, MINIMUMCARDSBEFORESHUFFLE ; this compares the value in eax to 39
             jge ShuffleCards ; if the value in eax is greater than or equal to 3, then jump to the ShuffleCards label
 
             inc ecx ; this increases the value in ecx by 1
@@ -395,7 +396,7 @@ SeedSuit ENDP
 ;              by dealing two new cards to the user.
 ;
 ;              Three features have been added for playability of the program. The first feature is the use of only one deck in the game, though multiple can be chosen if
-;              desired. This is done by changing the variable "maxDeckNumber" in the .data section. This program will remember what cards were already dealt. They cannot
+;              desired. This is done by changing the variable "MAXDECKNUMBER" in the .data section. This program will remember what cards were already dealt. They cannot
 ;              be used again until the cards are shuffled. The next feature is the betting system. So long as the program remains open, the amount of money the user has
 ;              will be remembered. There is no feature to save their money when the program is closed. The final feature is an Ace Algorithm which immediately
 ;              deals with the nuances of Aces within the game. If it is more beneficial for an Ace to be an eleven, then it will remain an eleven. If it is more beneficial for the
@@ -616,7 +617,7 @@ MainProgram PROC
 
             call CheckShuffleCards ; this calls the CheckShuffleCards procedure to check if the cards need to be shuffled
 
-            mov ebx, minBet ; this moves the value of minBet into ebx
+            mov ebx, MINBET ; this moves the value of MINBET into ebx
 
             .IF userWallet < ebx
                 
@@ -649,8 +650,8 @@ MainProgram PROC
                 mov edx, OFFSET promptBet ; prepares the string promptBet to be displayed
                 call WriteString ; this displays a string from edx
 
-                mov eax, minBet ; this prepares the variable minBet to be displayed
-                call WriteDec ; this displays the variable minBet from eax
+                mov eax, MINBET ; this prepares the variable MINBET to be displayed
+                call WriteDec ; this displays the variable MINBET from eax
 
                 mov al, ':' ; this prepares the character ':' to be displayed
                 call WriteChar ; this displays the variable ':'
@@ -672,10 +673,10 @@ MainProgram PROC
                 call Crlf ; new line
 
                 CheckBet:
-                    mov ebx, minBet ; this moves the value of minBet into ebx
+                    mov ebx, MINBET ; this moves the value of MINBET into ebx
                     mov edx, userWallet ; this moves the value of userWallet into edx
 
-                    .IF userBet < ebx || userBet > edx ; if the value of userBet is less than the value of minBet or greater than the value of userWallet
+                    .IF userBet < ebx || userBet > edx ; if the value of userBet is less than the value of MINBET or greater than the value of userWallet
                         mov eax, lightRed + (black * 16) ; this sets the color of the text to light red and the background to black
                         call SetTextColor ; this sets the text color to the value in eax
 
@@ -726,7 +727,7 @@ MainProgram PROC
                 
                     ProcessCard: ; this label is used to check if the card limit has been reached for the dealt card
                         mov eax, chosenCard ; this moves the value in chosenCard into eax
-                        mov ebx, maxDeckNumber ; this moves the value in maxDeckNumber into ebx
+                        mov ebx, MAXDECKNUMBER ; this moves the value in MAXDECKNUMBER into ebx
 
                         .IF cardDeck[eax*4] == ebx ; if the value of the cardDeck array at the index in eax is equal to ebx
                             jmp DetermineSuit ; jump to the DetermineSuit label
@@ -770,7 +771,7 @@ MainProgram PROC
                         add userTotalValue, 10 ; this adds 10 to the value of userTotalValue
                     .ENDIF
 
-                    mov eax, twentyOne ; this moves the value of userTotalValue into eax
+                    mov eax, TWENTYONE ; this moves the value of TWENTYONE into eax
 
                     ; BELOW IS THE ACE ALGORITHM. THIS ALGORITHM WAS FOUND AT: https://people.cs.pitt.edu/~jmisurda/teaching/cs401/2157/cs0401-2157-project2.htm
 
@@ -851,10 +852,10 @@ MainProgram PROC
             CheckForEndGameUser: ; this label is used to determine whether the user has busted or has 21
                 mov eax, userTotalValue ; this moves the value of userTotalValue into eax
 
-                .IF eax > twentyOne ; if the value of userTotalValue is greater than 21
+                .IF eax > TWENTYONE ; if the value of userTotalValue is greater than 21
                     mov boolUserBust, 1 ; this sets the value of boolUserBust to 1
                     jmp EndGame ; jump to the EndGame label
-                .ELSEIF eax == twentyOne ; if the value of userTotalValue is equal to 21
+                .ELSEIF eax == TWENTYONE ; if the value of userTotalValue is equal to 21
                     mov boolUser21, 1 ; this sets the value of boolUser21 to 1
 
                     mov eax, delayValue ; this moves the value of delayValue into eax
@@ -936,7 +937,7 @@ MainProgram PROC
                 
                 ProcessCard2: ; this label is used to check if the card limit has been reached for the dealt card
                     mov eax, chosenCard ; this moves the value in chosenCard into eax
-                    mov ebx, maxDeckNumber ; this moves the value in maxDeckNumber into ebx
+                    mov ebx, MAXDECKNUMBER ; this moves the value in MAXDECKNUMBER into ebx
 
                     .IF cardDeck[eax*4] == ebx ; if the value of the cardDeck array at the index in eax is equal to ebx
                         jmp DetermineSuit2 ; jump to the DetermineSuit label
@@ -982,7 +983,7 @@ MainProgram PROC
 
                 ProcessCard3: ; this label is used to check if the card limit has been reached for the dealt card
                     mov eax, chosenCard ; this moves the value in chosenCard into eax
-                    mov ebx, maxDeckNumber ; this moves the value in maxDeckNumber into ebx
+                    mov ebx, MAXDECKNUMBER ; this moves the value in MAXDECKNUMBER into ebx
 
                     .IF cardDeck[eax*4] == ebx ; if the value of the cardDeck array at the index in eax is equal to ebx
                         jmp DetermineSuit3 ; jump to the DetermineSuit label
@@ -1024,7 +1025,7 @@ MainProgram PROC
                         add houseTotalValue, 10 ; this adds 10 to the value of houseTotalValue
                     .ENDIF
 
-                    mov eax, twentyOne ; this moves the value of userTotalValue into eax
+                    mov eax, TWENTYONE ; this moves the value of TWENTYONE into eax
 
                     ; BELOW IS THE ACE ALGORITHM. THIS ALGORITHM WAS FOUND AT: https://people.cs.pitt.edu/~jmisurda/teaching/cs401/2157/cs0401-2157-project2.htm
 
@@ -1110,11 +1111,11 @@ MainProgram PROC
 
                     mov eax, houseTotalValue ; this moves the value of userTotalValue into eax
 
-                    .IF eax > twentyOne ; if the value of houseTotalValue is greater than 21
+                    .IF eax > TWENTYONE ; if the value of houseTotalValue is greater than 21
                         mov boolHouseBust, 1 ; this sets the value of boolHouseBust to 1
                         
                         jmp EndGame ; jump to the EndGame label
-                    .ELSEIF eax == twentyOne ; if the value of houseTotalValue is equal to 21
+                    .ELSEIF eax == TWENTYONE ; if the value of houseTotalValue is equal to 21
                         mov boolHouse21, 1 ; this sets the value of boolHouse21 to 1
                         
                         jmp EndGame ; jump to the EndGame label
@@ -1147,7 +1148,7 @@ MainProgram PROC
 
                         ProcessCard4: ; this label is used to check if the card limit has been reached for the dealt card
                             mov eax, chosenCard ; this moves the value in chosenCard into eax
-                            mov ebx, maxDeckNumber ; this moves the value in maxDeckNumber into ebx
+                            mov ebx, MAXDECKNUMBER ; this moves the value in MAXDECKNUMBER into ebx
 
                             .IF cardDeck[eax*4] == ebx ; if the value of the cardDeck array at the index in eax is equal to ebx
                                 jmp DetermineSuit4 ; jump to the DetermineSuit4 label
@@ -1204,7 +1205,7 @@ MainProgram PROC
                 .IF userTotalCards == 2 ; if the user has a natural BlackJack
                     
                     mov eax, userBet ; this moves the value of userBet into eax
-                    mov ebx, blackJackMultiplier ; this moves the value of blackJackMultiplier into ebx
+                    mov ebx, BLACKJACKMULTIPLIER ; this moves the value of BLACKJACKMULTIPLIER into ebx
 
                     mul ebx ; this multiplies the value in eax by the value in ebx and saves the result in eax
 
