@@ -1,14 +1,19 @@
 ; **********************************************************************;
 ; Program Name: BlackJack Game
-; Program Description: 
+; Program Description: This is a simple program which simulates the game of BlackJack (21).
+;                      The user is able to play against the house, and bet money on each hand.
+;                      Furthermore, the user is able to choose to stand or to hit. If the user
+;                      runs out of money, then the program will end. There is no designated
+;                      win-state.
 ; Author: Terrence Micciche-Hall
 ; Course: CSC2025X40
 ; Creation Date: 07/28/26
 ; Revisions: 0
-; Date Last Modified: 07/30/26
+; Date Last Modified: 07/31/26
 ; Test Cases:
 ;   ShuffleCards Case Ran - PASSED
-;   Ace Algorithm - PASSED?
+;   Ace Algorithm - INTERMITTENT
+;   Lose State - PASSED
 ; Notable Bugs:
 ;   While conducting testing, I found that every once in a while the Ace Algorithm would fail.
 ;   However, in most cases it seems to work. I am not entirely sure why this is happening.
@@ -33,7 +38,7 @@ INCLUDELIB C:\Irvine\Irvine32.lib
     
     promptRebet BYTE "I get the feeling that ya' tryin' to cheat me here... I'll give ya' another chance to bet a valid amount.", 0 ; this prompt the user to enter a valid amount of money they'd like to bet.
 
-    promptBet BYTE "How much ya' wanna bet? The minimum bet is $25: ", 0 ; this prompt the user to enter the amount of money they'd like to bet.
+    promptBet BYTE "How much ya' wanna bet? The minimum bet is $", 0 ; this prompts the user to enter the amount of money they'd like to bet.
 
     displayLuckyNumber BYTE "That's my lucky number...", 0 ; this displays a message that their bet is confirmed.
 
@@ -45,7 +50,7 @@ INCLUDELIB C:\Irvine\Irvine32.lib
     displayUserWon BYTE "Well now, it looks like ya' won! Good for ya'!", 0 ; this displays a message to the user that they have won the game.
     displayHouseWon BYTE "Tough luck, ya' lost. Maybe the next hand will be ya' lucky one.", 0 ; this displays a message to the user that they have lost the game.
 
-    displayTie21 BYTE "We both got 21! How about that?", 0 ; this displays a message to the user that both the user and th ehosue got a 21.
+    displayTie21 BYTE "We both got 21! How about that?", 0 ; this displays a message to the user that both the user and the house got a 21.
     displayTie BYTE "Looks like we tied. How about that?", 0 ; this displays a message to the user that they have tied the game.
 
     displayHouseBust BYTE "Yup, the house busted. Good for ya'!", 0 ; this displays a message to the user that the house has busted.
@@ -82,7 +87,7 @@ INCLUDELIB C:\Irvine\Irvine32.lib
     displayClubs BYTE "Clubs", 0 ; this displays the word "Clubs"
 
     promptStartGame1 BYTE "This here is ", 0 ; this prompt the user to decide whether they'd like to play the game or not.
-    promtStartGame2 BYTE ", stranger. Lookin' to play? (y/n)? ", 0 ; this prompt the user to decide whether they'd like to play the game or not.
+    promptStartGame2 BYTE ", stranger. Lookin' to play? (y/n)? ", 0 ; this prompt the user to decide whether they'd like to play the game or not.
     promptStartGame3 BYTE "Well, stranger, I don't know what to say. Goodbye.", 0 ; this displays a message to the user that they have chosen not to play the game.
     promptStartGame4 BYTE "Great. Want me to tell ya' the rules, or na'? (y/n)? ", 0 ; this prompt the user to decide whether they'd like to hear the rules of the game or not.
     promptStartGame5 BYTE "Let's get on then.", 0 ; this displays a message to the user that they have chosen not to hear the rules of the game.
@@ -93,10 +98,9 @@ INCLUDELIB C:\Irvine\Irvine32.lib
     displayRules4 BYTE "Let's say ya' win. If ya' get a natural BlackJack, which is an Ace and a 10, then ya' bet comes back double.", 0 ; this a part of a set of strings that display the rules of the game to the user.
     displayRules5 BYTE "Otherwise, ya' bet comes back as the same amount ya' bet.", 0 ; this a part of a set of strings that display the rules of the game to the user.
     displayRules6 BYTE "If ya' bust, then ya' not gettin' anythin' back. If ya' tie, then ya' gain nothin' and lose nothin'.", 0 ; this a part of a set of strings that display the rules of the game to the user.
-    displayRules7 BYTE "Good luck, stranger.", 0 ; this displays the rules of the game to the user.", 0 ; this is a part of a set of strings that display the rules of the game to the user.
+    displayRules7 BYTE "Good luck, stranger.", 0 ; this is a part of a set of strings that display the rules of the game to the user.
 
     displayBlack BYTE "Black", 0 ; this displays the word "Black"
-    diplayJack BYTE "Jack", 0 ; this displays the word "Jack"
 
     displayUser21 BYTE "Hey, 21! Looks like Lady Luck is on ya' side.", 0 ; this displays a message to the user that they have won the game.
 
@@ -113,13 +117,12 @@ INCLUDELIB C:\Irvine\Irvine32.lib
     ;*************************************
 
     blackJackMultiplier DWORD 2 ; this is an initialized DWORD variable. this variable is used to hold the multiplier for a blackjack hand.
-    winningMult DWORD 1 ; this is an initialized DWORD variable. this variable is used to hold the multiplier for a winning hand of blackjack.
 
-    userWallet DWORD 250 ; this is an uninitialized DWORD variable. this variable is used to hold the amount of money the user has in their wallet.
+    userWallet DWORD 250 ; this is an initialized DWORD variable. this variable is used to hold the amount of money the user has in their wallet.
 
-    minBet DWORD 25 ; this is an uninitialized DWORD variable. this variable is used to hold the minimum bet amount.
+    minBet DWORD 25 ; this is an initialized DWORD variable. this variable is used to hold the minimum bet amount.
 
-    userBet DWORD 0 ; this is an uninitialized DWORD variable. this variable is used to hold the amount of money the user has bet.
+    userBet DWORD 0 ; this is an initialized DWORD variable. this variable is used to hold the amount of money the user has bet.
 
     aceCount DWORD 0 ; this is an initialized DWORD variable. this variable is used to hold the number of aces in a hand for the ace algorithm.
 
@@ -140,25 +143,21 @@ INCLUDELIB C:\Irvine\Irvine32.lib
     userTotalCards DWORD 0 ; this is an initialized DWORD variable. this variable is used to hold the total number of cards in the user's hand.
     userHand DWORD 10 DUP(0) ; this is an initialized array of DWORD elements. the elements are initialized to 0, and they are used to hold the user's hand of cards.
     userHandSuit DWORD 10 DUP(0) ; this is an initialized array of DWORD elements. the elements are initialized to 0, and they are used to hold the user's suits.
-    userTotalValue DWORD ? ; this is an initialized DWORD variable. this variable is used to hold the total value of the user's hand of cards.
+    userTotalValue DWORD ? ; this is an uninitialized DWORD variable. this variable is used to hold the total value of the user's hand of cards.
 
     twentyOne DWORD 21 ; this is an initialized DWORD variable. this variable is used to hold the value of 21, which is the winning value in a game of blackjack.
 
     houseTotalCards DWORD 0 ; this is an initialized DWORD variable. this variable is used to hold the total number of cards in the house's hand.
     houseHand DWORD 10 DUP(0) ; this is an initialized array of DWORD elements. the elements are initialized to 0, and they are used to hold the house's hand of cards.
     houseHandSuit DWORD 10 DUP(0) ; this is an initialized array of DWORD elements. the elements are initialized to 0, and they are used to hold the house's suits.
-    houseTotalValue DWORD ? ; this is an initialized DWORD variable. this variable is used to hold the total value of the house's hand of cards.
+    houseTotalValue DWORD ? ; this is an uninitialized DWORD variable. this variable is used to hold the total value of the house's hand of cards.
 
     cardDeckNumbers DWORD OFFSET displayAce, OFFSET displayTwo, OFFSET displayThree, OFFSET displayFour, OFFSET displayFive, OFFSET displaySix, OFFSET displaySeven,
                           OFFSET displayEight, OFFSET displayNine, OFFSET displayTen, OFFSET displayJack, OFFSET displayQueen, OFFSET displayKing ; this is an initialized array of BYTE elements.
                                                                                                                                                   ; the elements are initialized to the values of a card deck.
     
-    cardDeckNumbersCounts DWORD 13 DUP(4) ; this is an initialized array of DWORD elements. the elements are initialized to the counts of each value in a card deck.
-    
     cardDeckSuits DWORD OFFSET displayHearts, OFFSET displayDiamonds, OFFSET displaySpades, OFFSET displayClubs ; this is an initialized array of BYTE elements. the elements are initialized
                                                                                                                 ; to the suits of a card deck.
-
-    cardDeckSuitCounts DWORD 4 DUP(13); this is an initialized array of BYTE elements. the elements are initialized to the counts of each suit in a card deck.
 
     boolUserBust DWORD 0 ; this is an initialized DWORD variable. this variable is used to determine whether the user has busted or not. 1 is true and 0 is false.
 
@@ -168,9 +167,7 @@ INCLUDELIB C:\Irvine\Irvine32.lib
      
     boolHouse21 DWORD 0 ; this is an initialized DWORD variable. this variable is used to determine whether the house has 21 or not. 1 is true and 0 is false.
 
-    boolGameWon DWORD ? ; this is an initialized DWORD variable. this variable is used to determine whether the user has won the game or not. 1 is true and 0 is false.
-
-    boolHouseBusted DWORD ? ; this is an initialized DWORD variable. this variable is used to determine whether the house has busted or not. 1 is true and 0 is false.
+    boolHouseBusted DWORD ? ; this is an uninitialized DWORD variable. this variable is used to determine whether the house has busted or not. 1 is true and 0 is false.
 
     answer BYTE 2 DUP(0) ; this is an initialized array of DWORD elements. the elements are initialized to 0, and they are used to keep track
                          ; of the response to the TryAgain label as well as the null terminator.
@@ -178,26 +175,126 @@ INCLUDELIB C:\Irvine\Irvine32.lib
 ; **********************************************************************;
 ; Functional description of the main program
 ;   
-;   Inputs: 
+;   Inputs: The main program does not have any designated inputs. However, the user will be prompted to enter values in the terminal.
 ;
-;   Outputs: 
+;   Outputs: The main program does not have any designated outputs. However, prompts will be displayed in the terminal.
 ;
 ;	Registers used and associated purpose of each:
-;
+;	    EAX - This is the Extended Accumulator Register. This register is used to hold values for arithmetic operations, as well as to hold values for the SetTextColor procedure.
+;       ECX - This is the Extended Counter Register. This register is used to hold values for loops, as well as to hold values for the ReadString procedure.
+;       EBX - This is the Extended Base Register. This register is used to hold values for comparisons, the RandomRange procedure, and for arithmetic operations. 
+;       EDX - This is the Extended Data Register. This register is used to hold values for the WriteString procedure, as well as to hold values for the ReadString procedure.
+;       AL - This is the Accumulator Low Register. This register is used to hold values for the ReadChar procedure. 
 ;
 ;	Memory locations use and associated purpose of each:
-;
+;       displayNotEnoughMoney - this displays a message to the user that they don't have enough money to bet.
+;       promptRebet - this prompt the user to enter a valid amount of money they'd like to bet.
+;       promptBet - this prompts the user to enter the amount of money they'd like to bet.
+;       displayLuckyNumber - this displays a message that their bet is confirmed.
+;       displayWallet - this displays the amount of money the user has in their wallet.
+;       displayShuffleCards - this displays a message to the user that the cards are being shuffled.
+;       displayGoodbye - this displays a farewell message
+;       displayUserWon - this displays a message to the user that they have won the game.
+;       displayHouseWon - this displays a message to the user that they have lost the game.
+;       displayTie21 - this displays a message to the user that both the user and the house got a 21.
+;       displayTie - this displays a message to the user that the game ended in a tie.
+;       displayHouseBust - this displays a message to the user that the house has busted.
+;       displayHouse21 - this displays a message to the user that the house has 21.
+;       displayTotalValueHouse - this displays the total value of the house's hand.
+;       displayTotalValueUser - this displays the total value of the user's hand.
+;       promptHitOrStand - this prompt the user to decide whether they'd like to hit or stand.
+;       displayCardsHouse - this displays a message to the user that shows the house's hand of cards.
+;       displayCardsUser - this displays a message to the user that shows the user's hand of cards.
+;       displayOf - this display is a part of a message which shows the number and suit of a card
+;       displayAnd - this display is a part of a message which shows the number and suit of a card
+;       displayAce - this displays the word "Ace"
+;       displayTwo - this displays the word "Two"
+;       displayThree - this displays the word "Three"
+;       displayFour - this displays the word "Four"
+;       displayFive - this displays the word "Five"
+;       displaySix - this displays the word "Six"
+;       displaySeven - this displays the word "Seven"
+;       displayEight - this displays the word "Eight"
+;       displayNine - this displays the word "Nine"
+;       displayTen - this displays the word "Ten"
+;       displayJack - this displays the word "Jack"
+;       displayQueen - this displays the word "Queen"
+;       displayKing - this displays the word "King"
+;       displayHearts - this displays the word "Hearts"
+;       displayDiamonds - this displays the word "Diamonds"
+;       displaySpades - this displays the word "Spades"
+;       displayClubs - this displays the word "Clubs"
+;       promptStartGame1 - this prompt the user to decide whether they'd like to play the game or not. This is the first part
+;                          of fiive prompts.
+;       promptStartGame2 - this prompt the user to decide whether they'd like to play the game or not. This is the second part
+;                         of five prompts.
+;       promptStartGame3 - this displays a message to the user that they have chosen not to play the game. This is the third
+;                          of five prompts.
+;       promptStartGame4 - this displays a message to the user that they have chosen not to play the game. This is the fourth
+;                          of five prompts.
+;       promptStartGame5 - this displays a message to the user that they have chosen not to play the game. This is the fifth
+;                          of five prompts.
+;       displayRules - this displays the rules of the game to the user. This is the first part of seven prompts.
+;       displayRules2 - this displays the rules of the game to the user. This is the second part of seven prompts.
+;       displayRules3 - this displays the rules of the game to the user. This is the third part of seven prompts.
+;       displayRules4 - this displays the rules of the game to the user. This is the fourth part of seven prompts.
+;       displayRules5 - this displays the rules of the game to the user. This is the fifth part of seven prompts.
+;       displayRules6 - this displays the rules of the game to the user. This is the sixth part of seven prompts.
+;       displayRules7 - this displays the rules of the game to the user. This is the seventh part of seven prompts.
+;       displayBlack - this displays the word "Black"
+;       displayUser21 - this displays a message to the user that they have won the game
+;       displayUserBust - this displays a message to the user that they have lost the game
+;       promptTryAgain - this prompts the user to decide whether they'd like to continue the program or not.
+;       promptErrorTry - this declares that the user entered an invalid response, then it prompts the user to try again.
+;       promptErrorResp - this declares that the user entered an invalid response, then it prompts the user to try again.
+;       blackJackMultiplier - this is a multiplier used to calculate the winnings for a blackjack hand.
+;       userWallet - this is a variable that holds the amount of money the user has in their wallet.
+;       minBet - this is a variable that holds the minimum bet amount.
+;       userBet - this is a variable that holds the amount of money the user has bet.
+;       aceCount - this is a variable that holds the number of aces in the user's hand.
+;       minimumCardBeforeShuffle - this is a variable that holds the minimum number of cards before the deck is shuffled.
+;       maxDeckNumber - this is a variable that holds the maximum number of decks in the game.
+;       chosenCard - this is a variable that holds the card that has been chosen.
+;       cardDeck - this is an array that holds all the cards in the deck.
+;       delayValue - this is a variable that holds the delay value for the program.
+;       delayValue2 - this is a variable that holds the delay value for the program.
+;       delayValue3 - this is a variable that holds the delay value for the program.
+;       startingHandCount - this is a variable that holds the number of cards in the starting hand.
+;       userTotalCards - this is a variable that holds the total number of cards in the user's hand.
+;       userHand - this is an array that holds all the cards in the user's hand.
+;       userHandSuit - this is an array that holds all the suits in the user's hand.
+;       userTotalValue - this is a variable that holds the total value of the user's hand.
+;       twentyOne - this is a variable that holds the value of 21.
+;       houseTotalCards - this is a variable that holds the total number of cards in the house's hand.
+;       houseHand - this is an array that holds all the cards in the house's hand.
+;       houseHandSuit - this is an array that holds all the suits in the house's hand.
+;       houseTotalValue - this is a variable that holds the total value of the house's hand.
+;       cardDeckNumbers - this is an array that holds all the numbers in the deck.
+;       cardDeckSuits - this is an array that holds all the suits in the deck.
+;       boolUserBust - this is a boolean variable that indicates if the user has busted.
+;       boolUser21 - this is a boolean variable that indicates if the user has 21.
+;       boolHouseBust - this is a boolean variable that indicates if the house has busted.
+;       boolHouse21 - this is a boolean variable that indicates if the house has 21.
+;       boolHouseBusted - this is a boolean variable that indicates if the house has busted.
+;       answer - this is a variable that holds the user's answer to prompts.
 ;	Functional details: 
+;       The main program runs almost entirely within the MainProgram procedure. Furthermore, the MainProgram procedure is responsible
+;       for all of the display outputs as well as handling all of the user inputs. This procedure does utilize other procedures as well,
+;       specifically CheckShuffleCards, SeedCard, and SeedSuit. These procedures are ancillary, and have the purpose of supporting
+;       the main program. Without the ancillary procedures, the main program will still run, but not as efficiently. More information
+;       regarding the ancillary procedures can be found in the comments above each procedure. In addition to that, more information
+;       regarding the MainProgram procedure can be found in the comments above the procedure.
 ;  
 ; **********************************************************************;
 
 .code
 
 ;***********************************
-; Description: 
-; Receives:
-; Returns: 
-; Requires: 
+; Description: This procedure checks if the cards need to be shuffled. If so, then they will be shuffled within this procedure. If not,
+;              then they will not be shuffled.
+; Receives: This procedure does not directly receive anything.
+; Returns: This procedure does not directly return anything.
+; Requires: This procedure requires the Irvine32 library as well as the array cardDeck.
 ;***********************************
 CheckShuffleCards PROC
     
@@ -249,10 +346,10 @@ CheckShuffleCards PROC
 CheckShuffleCards ENDP
 
 ;***********************************
-; Description: 
-; Receives: 
-; Returns: 
-; Requires: 
+; Description: This procedure is used to generate a random number value.
+; Receives: This procedure does not directly receive anything.
+; Returns: This procedure returns a random value saved in eax.
+; Requires: This procedure requires the Irvine32 library as well as the array cardDeckNumbers.
 ;***********************************
 SeedCard PROC
     mov eax, LENGTHOF cardDeckNumbers ; this gets the length of the cardDeckNumbers array and saves it in eax
@@ -263,10 +360,10 @@ SeedCard PROC
 SeedCard ENDP
 
 ;***********************************
-; Description: 
-; Receives: 
-; Returns: 
-; Requires: 
+; Description: This procedure is used to generate a random suit value.
+; Receives: This procedure does not directly receive anything.
+; Returns: This procedure returns a random value saved in eax.
+; Requires: This procedure requires the Irvine32 library as well as the array cardDeckSuits.
 ;***********************************
 SeedSuit PROC
     mov eax, LENGTHOF cardDeckSuits ; this gets the length of the cardDeckSuits array and saves it in eax
@@ -277,10 +374,35 @@ SeedSuit PROC
 SeedSuit ENDP
 
 ;***********************************
-; Description: 
-; Receives: 
-; Returns: 
-; Requires: 
+; Description: This procedure starts with the user in a main menu. The user will be prompted to decide whether they'd like to play BlackJack or not. If no, then
+;              the program will end. If yes, then the user will be prompted to decide whether they'd like to hear the rules or not. If no, then the rules will not
+;              be displayed. If yes, the rules will be displayed. Afterwards, the game will start. The first thing the user must do is place a bet greater than minimum bet.
+;              If in any case the user doesn't have enough money to match the minimum bet, the game will end. Once the bet has been placed, program will call the
+;              procedure CheckShuffleCards. This is done to see if the cards need shuffling. The default settings of this game ensure that only one deck
+;              of cards are used. Also, before the user is dealt any cards, the procedures SeedCard and SeedSuit will be called to generate a random card and suit.
+;              The total value of the cards will be displayed, and the user will be prompted to hit or stand. If the user hits, then they will be dealt another card
+;              and the total value will display again. Once more they will be prompted to hit or stand. When the user decides to stand, the house will then be dealt
+;              two cards. The total value of the house's cards will be displayed. If the house has a total value of less than 17, then they must hit. If the house has
+;              a total value of 17 or more, then they must stand. The winner will be calculated by comparison of who is the closest to 21.
+;
+;              There are more than a few comparisons to determine who the winner is. If the user busts, then they immediately lose. If the house busts, then they
+;              immediately lose. Due to the single-player nature of this program, there is no case where both the house and the user bust. If the user hits 21
+;              and the house has not, then the user wins. Furthermore, if the user gets a BlackJack (their two deal cards are an Ace and a 10), then the user
+;              gets a special pay out of 2x their bet. In any other case the user wins, they will get 1x their bet. If they lose, then they will lose their bet.
+;              Next, if the house gets 21 and the user doesn't then they win. If the user gets 21 and the house gets 21, then it is a tie. Also, any other case where the
+;              user and the house have the same total value of cards results in a tie. In a tie, there is no payout. The user loses no money but also gains no money.
+;              After the winner is determined, the user is prompted to decide whether they'd like to play again. If no, then the program ends. If yes, then the program starts
+;              by dealing two new cards to the user.
+;
+;              Three features have been added for playability of the program. The first feature is the use of only one deck in the game, though multiple can be chosen if
+;              desired. This is done by changing the variable "maxDeckNumber" in the .data section. This program will remember what cards were already dealt. They cannot
+;              be used again until the cards are shuffled. The next feature is the betting system. So long as the program remains open, the amount of money the user has
+;              will be remembered. There is no feature to save their money when the program is closed. The final feature is an Ace Algorithm which immediately
+;              deals with the nuances of Aces within the game. If it is more beneficial for an Ace to be an eleven, then it will remain an eleven. If it is more beneficial for the
+;              Ace to be a one, then it will become a one.
+; Receives: This procedure does not directly receive anything. However, the user will be prompted to input values.
+; Returns: This procedure does not directly return anything. However, prompts will be displayed to the terminal.
+; Requires: This procedure requires the Irvine32 library, the SeedSuit procedure, the SeedCard procedure, and the CheckShuffleCards procedure.
 ;***********************************
 MainProgram PROC
     StartGame: ; this label is used to display the main menu of the BlackJack game and prompt the user to decide whether they would like to play the game or not
@@ -296,13 +418,13 @@ MainProgram PROC
         mov eax, white + (black * 16) ; this sets the color of the text to white and the background to black
         call SetTextColor ; this sets the text color to the value in eax
 
-        mov edx, OFFSET diplayJack ; prepares the string diplayJack to be displayed
+        mov edx, OFFSET displayJack ; prepares the string displayJack to be displayed
         call WriteString ; this displays a string from edx
 
         mov eax, lightGray + (black * 16) ; this sets the color of the text to light grey and the background to black
         call SetTextColor ; this sets the text color to the value in eax
 
-        mov edx, OFFSET promtStartGame2 ; prepares the string promtStartGame2 to be displayed
+        mov edx, OFFSET promptStartGame2 ; prepares the string promptStartGame2 to be displayed
         call WriteString ; this displays a string from edx
 
         CheckAnswer: ; this label is used to check the user's answer to the prompt of whether they would like to play the game or not
@@ -526,6 +648,15 @@ MainProgram PROC
 
                 mov edx, OFFSET promptBet ; prepares the string promptBet to be displayed
                 call WriteString ; this displays a string from edx
+
+                mov eax, minBet ; this prepares the variable minBet to be displayed
+                call WriteDec ; this displays the variable minBet from eax
+
+                mov al, ':' ; this prepares the character ':' to be displayed
+                call WriteChar ; this displays the variable ':'
+
+                mov al, ' ' ; this prepares the character ' ' to be displayed
+                call WriteChar ; this displays the variable ' '
 
                 mov eax, lightBlue + (black * 16) ; this sets the color of the text to light blue and the background to black
                 call SetTextColor ; this sets the text color to the value in eax
@@ -1077,7 +1208,7 @@ MainProgram PROC
 
                     mul ebx ; this multiplies the value in eax by the value in ebx and saves the result in eax
 
-                    mov userWallet, eax ; this moves the value in eax into userWallet
+                    add userWallet, eax ; this adds the value of eax into the variable userWallet
 
                 .ENDIF
 
